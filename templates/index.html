@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAA休闲游戏成本收益测算</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <header class="header">
+            <h1>IAA休闲游戏成本收益测算</h1>
+            <p class="subtitle">Cost-Benefit Analysis Tool for IAA Casual Games</p>
+        </header>
+
+         <!-- 欢迎页面 - 新建/加载项目 -->
+        <section class="section welcome-section" id="welcomeSection">
+            <h2>开始使用</h2>
+            <div class="welcome-content">
+                <p class="welcome-text">请新建项目或加载已有项目以开始测算</p>
+                <div class="welcome-buttons">
+                    <div class="welcome-card" onclick="createNewProject()">
+                        <div class="welcome-icon">📝</div>
+                        <h3>新建项目</h3>
+                        <p>创建一个新的测算项目</p>
+                    </div>
+                    <div class="welcome-card" onclick="showLoadDialog()">
+                        <div class="welcome-icon">📂</div>
+                        <h3>加载项目</h3>
+                        <p>加载已保存的项目</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- 测算主区域 - 初始隐藏 -->
+        <div id="mainContent" style="display: none;">
+            <!-- 项目管理区 -->
+            <section class="section project-management">
+                <h2>项目管理</h2>
+                <div class="project-controls">
+                    <div class="input-group">
+                        <label for="projectName">项目名称</label>
+                        <input type="text" id="projectName" placeholder="输入项目名称">
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" onclick="saveProject()">
+                            <span class="icon">💾</span> 保存当前项目
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="showLoadDialog()">
+                            <span class="icon">📂</span> 加载项目
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="backToWelcome()">
+                            <span class="icon">🏠</span> 返回首页
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 参数输入区 -->
+            <section class="section parameters">
+                <h2>参数输入</h2>
+
+                <!-- 资源投入时间段 -->
+                <div class="subsection">
+                    <h3>资源投入（时间段）</h3>
+                    <div id="investmentPeriods" class="periods-container">
+                        <!-- 动态添加的时间段将在这里 -->
+                    </div>
+                    <button type="button" class="btn btn-add" onclick="addInvestmentPeriod()">
+                        <span class="icon">+</span> 添加时间段
+                    </button>
+                </div>
+
+                <!-- ROI数据 -->
+                <div class="subsection">
+                    <h3>ROI数据</h3>
+                    <div class="data-input-section">
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="roiInputType" value="manual" checked onchange="toggleRoiInput('manual')">
+                                手动输入
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="roiInputType" value="excel" onchange="toggleRoiInput('excel')">
+                                Excel导入
+                            </label>
+                        </div>
+
+                        <!-- 手动输入区 -->
+                        <div id="roiManualInput" class="manual-input-area">
+                            <p class="input-hint">建议至少输入三个数据点</p>
+                            <table class="data-table" id="roiManualTable">
+                                <thead>
+                                    <tr>
+                                        <th>天数</th>
+                                        <th>ROI值 (%)</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="roiManualBody">
+                                    <!-- 动态添加的行 -->
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-add-small" onclick="addRoiRow()">+ 添加数据点</button>
+                        </div>
+
+                        <!-- Excel导入区 -->
+                        <div id="roiExcelInput" class="excel-input-area" style="display: none;">
+                            <div class="file-upload-row">
+                                <div class="file-upload">
+                                    <input type="file" id="roiExcelFile" accept=".xlsx,.xls,.csv" onchange="handleRoiExcel(event)">
+                                    <label for="roiExcelFile" class="file-label">
+                                        <span class="icon">📄</span> 选择Excel文件
+                                    </label>
+                                </div>
+                                <p class="input-note">为确保计算准确，导入天数最好与投资天数相同</p>
+                            </div>
+                            <div id="roiExcelPreview" class="excel-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 留存率数据 -->
+                <div class="subsection">
+                    <h3>留存率数据</h3>
+                    <div class="data-input-section">
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="retentionInputType" value="manual" checked onchange="toggleRetentionInput('manual')">
+                                手动输入
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="retentionInputType" value="excel" onchange="toggleRetentionInput('excel')">
+                                Excel导入
+                            </label>
+                        </div>
+
+                        <!-- 手动输入区 -->
+                        <div id="retentionManualInput" class="manual-input-area">
+                            <p class="input-hint">建议至少输入三个数据点</p>
+                            <table class="data-table" id="retentionManualTable">
+                                <thead>
+                                    <tr>
+                                        <th>天数</th>
+                                        <th>留存率 (%)</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="retentionManualBody">
+                                    <!-- 动态添加的行 -->
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-add-small" onclick="addRetentionRow()">+ 添加数据点</button>
+                        </div>
+
+                        <!-- Excel导入区 -->
+                        <div id="retentionExcelInput" class="excel-input-area" style="display: none;">
+                            <div class="file-upload-row">
+                                <div class="file-upload">
+                                    <input type="file" id="retentionExcelFile" accept=".xlsx,.xls,.csv" onchange="handleRetentionExcel(event)">
+                                    <label for="retentionExcelFile" class="file-label">
+                                        <span class="icon">📄</span> 选择Excel文件
+                                    </label>
+                                </div>
+                                <p class="input-note">为确保计算准确，导入天数最好与投资天数相同</p>
+                            </div>
+                            <div id="retentionExcelPreview" class="excel-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他设置 -->
+                <div class="subsection">
+                    <h3>其他设置</h3>
+                    <div class="settings-grid">
+                        <div class="input-group">
+                            <label for="repaymentMonths">现金回款月数</label>
+                            <input type="number" id="repaymentMonths" value="1" min="1" max="12" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="targetDau">目标DAU (万人)</label>
+                            <input type="number" id="targetDau" value="500" min="1" step="1">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 操作按钮区 -->
+            <section class="section actions">
+                <button type="button" class="btn btn-calculate" onclick="startCalculation()">
+                    <span class="icon">🚀</span> 开始计算
+                </button>
+                <button type="button" class="btn btn-export" id="exportCsvBtn" onclick="exportCsv()" disabled>
+                    <span class="icon">📊</span> 导出每日数据
+                </button>
+            </section>
+        </div>
+
+        <!-- 加载动画 -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>计算中，请稍候...</p>
+            </div>
+        </div>
+
+        <!-- 结果展示区 -->
+        <section class="section results" id="resultsSection" style="display: none;">
+            <h2>计算结果</h2>
+            
+            <!-- 关键指标 -->
+            <div class="subsection">
+                <h3>关键指标</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">1个月回款最大现金需求</div>
+                        <div class="metric-value" id="metricMaxCash1m">--</div>
+                        <div class="metric-unit">万元</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">2个月回款最大现金需求</div>
+                        <div class="metric-value" id="metricMaxCash2m">--</div>
+                        <div class="metric-unit">万元</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">动态会计利润打正天数</div>
+                        <div class="metric-value" id="metricDynamicBreakeven">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">累计会计利润打正天数</div>
+                        <div class="metric-value" id="metricCumulativeBreakeven">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">1个月回款现金流打正天数</div>
+                        <div class="metric-value" id="metricCashFlow1mBreakeven">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">2个月回款现金流打正天数</div>
+                        <div class="metric-value" id="metricCashFlow2mBreakeven">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">达到1000万DAU天数</div>
+                        <div class="metric-value" id="metricDay10mDau">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">达到200万DAU天数</div>
+                        <div class="metric-value" id="metricDay2mDau">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                    <div class="metric-card highlight">
+                        <div class="metric-label">达到<span id="metricTargetDauValue">--</span>万DAU天数</div>
+                        <div class="metric-value" id="metricDayTargetDau">--</div>
+                        <div class="metric-unit">天</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区 -->
+            <div class="subsection">
+                <h3>数据图表</h3>
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h4>DAU季度趋势</h4>
+                            <button type="button" class="btn btn-download-chart" onclick="downloadChart('dauChart', 'DAU季度趋势')">
+                                <span class="icon">⬇️</span> 下载图表
+                            </button>
+                        </div>
+                        <canvas id="dauChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h4>收入成本季度分析</h4>
+                            <button type="button" class="btn btn-download-chart" onclick="downloadChart('financeChart', '收入成本季度分析')">
+                                <span class="icon">⬇️</span> 下载图表
+                            </button>
+                        </div>
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 季度汇总表格 - 转置布局：季度在上行，指标在左列 -->
+            <div class="subsection">
+                <div class="section-header">
+                    <h3>季度汇总数据</h3>
+                    <div class="header-buttons">
+                        <button type="button" class="btn btn-download-chart" onclick="downloadQuarterlyTable()">
+                            <span class="icon">⬇️</span> 下载表格（Excel）
+                        </button>
+                        <button type="button" class="btn btn-download-chart" onclick="downloadQuarterlyTableAsImage()">
+                            <span class="icon">⬇️</span> 下载表格（图片）
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="result-table transposed-table" id="quarterlyTable">
+                        <thead id="quarterlyTableHead">
+                            <!-- 动态填充季度标题行 -->
+                        </thead>
+                        <tbody id="quarterlyTableBody">
+                            <!-- 动态填充指标行 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 加载项目对话框 -->
+        <div id="loadProjectDialog" class="dialog-overlay" style="display: none;">
+            <div class="dialog">
+                <div class="dialog-header">
+                    <h3>选择要加载的项目</h3>
+                    <button type="button" class="btn-close" onclick="closeLoadDialog()">&times;</button>
+                </div>
+                <div class="dialog-body">
+                    <ul id="projectList" class="project-list">
+                        <!-- 动态填充 -->
+                    </ul>
+                </div>
+                <div class="dialog-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeLoadDialog()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新建项目对话框 -->
+        <div id="newProjectDialog" class="dialog-overlay" style="display: none;">
+            <div class="dialog">
+                <div class="dialog-header">
+                    <h3>新建项目</h3>
+                    <button type="button" class="btn-close" onclick="closeNewProjectDialog()">&times;</button>
+                </div>
+                <div class="dialog-body">
+                    <div class="input-group">
+                        <label for="newProjectName">项目名称 <span class="required">*</span></label>
+                        <input type="text" id="newProjectName" placeholder="请输入项目名称" maxlength="100">
+                        <p id="newProjectNameError" class="error-message" style="display: none;"></p>
+                        <p id="newProjectNameHint" class="hint-message">项目名称将用于保存和识别您的测算项目</p>
+                    </div>
+                </div>
+                <div class="dialog-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewProjectDialog()">取消</button>
+                    <button type="button" class="btn btn-primary" id="confirmNewProjectBtn" onclick="confirmNewProject()">
+                        <span class="icon">✓</span> 确认创建
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>IAA休闲游戏成本收益测算工具 &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
