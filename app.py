@@ -9,6 +9,8 @@ app = Flask(__name__)
 
 # 项目保存目录
 PROJECTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'projects')
+# 数据保存目录
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 # 确保项目目录存在
 if not os.path.exists(PROJECTS_DIR):
@@ -197,7 +199,14 @@ def delete_project():
         if not os.path.exists(file_path):
             return jsonify({'error': f'项目 "{project_name}" 不存在'}), 404
         
+        # 删除项目JSON文件
         os.remove(file_path)
+        
+        # 同时删除data文件夹中对应的pkl文件
+        safe_name = get_safe_filename(project_name)
+        pkl_file_path = os.path.join(DATA_DIR, f"{safe_name}_data.pkl")
+        if os.path.exists(pkl_file_path):
+            os.remove(pkl_file_path)
         
         return jsonify({'success': True, 'message': f'项目 "{project_name}" 已删除'})
     

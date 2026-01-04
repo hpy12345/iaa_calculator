@@ -1095,3 +1095,25 @@ body {
 .btn-warning:hover {
     background: #e0a800;
 }
+
+.save-status {
+    position: fixed;
+    top: 12px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 1000;
+    transition: all 0.2s ease;
+}
+
+.save-status.saved {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.save-status.unsaved {
+    background: #fef3c7;
+    color: #92400e;
+}

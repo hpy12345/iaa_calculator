@@ -167,11 +167,6 @@ def calculate_metrics(params: dict) -> dict:
             
         # 使用曲线拟合生成完整数据
         roi_vector = fit_roi_curve_advanced(known_days, known_values, total_investment_days, "roi")
-
-    print(len(roi_vector))
-    print("\n")
-    print(roi_vector)
-    print("\n")
     
     """ 4. 解析留存率数据 """
     retention_data_raw = params.get('retention_data', {'type': 'manual', 'points': []})
@@ -199,10 +194,6 @@ def calculate_metrics(params: dict) -> dict:
 
         # 使用曲线拟合生成完整数据
         retention_vector = fit_roi_curve_advanced(known_days, known_values, total_investment_days, "retention")
-
-    print(len(retention_vector))
-    print("\n")
-    print(retention_vector)
 
     """ 5. 将所有原始数据转化为dataframe """
     # 创建一个行数为总天数、列数为43的DataFrame
@@ -396,7 +387,7 @@ def calculate_metrics(params: dict) -> dict:
         df_extra.iloc[:, 3] = df_extra.iloc[:, 2][::-1].cumsum()[::-1].values
     
     """ 7. 计算关键指标 key_metrics """
-    # 最大现金需求（取累计现金缺口的最小值的绝对值）
+    # 最大现金需求
     max_cash_demand_1m = abs(df.iloc[:, 24].min()) if df.iloc[:, 24].min() < 0 else 0
     max_cash_demand_2m = abs(df.iloc[:, 26].min()) if df.iloc[:, 26].min() < 0 else 0
     if repayment_flag:
@@ -404,7 +395,7 @@ def calculate_metrics(params: dict) -> dict:
     else:
         max_cash_demand_nm = 0
 
-    # 动态会计利润打正天数（当期利润回正）：找到第30列第一个为0的行索引
+    # 动态会计利润打正天数：找到第30列第一个为0的行索引
     dynamic_profit_breakeven_day = -1
     for i in range(len(df)):
         if df.iloc[i, 30] == 0:
@@ -496,7 +487,7 @@ def calculate_metrics(params: dict) -> dict:
     prev_cumulative_other_cost = 0
     prev_cumulative_cash_flow_1m = 0
     prev_cumulative_cash_flow_2m = 0
-    prev_cumulative_cash_flow_nm = 0  # n个月回款的前一季度累计现金流
+    prev_cumulative_cash_flow_nm = 0
     
     for quarter in quarters:
         quarter_df = df_display[df_display['quarter'] == quarter]
@@ -515,7 +506,7 @@ def calculate_metrics(params: dict) -> dict:
         cumulative_cash_flow_1m = round(df_display.loc[quarter_end_idx, 24], 2) if not pd.isna(df_display.loc[quarter_end_idx, 24]) else 0  # 累积净现金流（一个月回款）
         cumulative_cash_flow_2m = round(df_display.loc[quarter_end_idx, 26], 2) if not pd.isna(df_display.loc[quarter_end_idx, 26]) else 0  # 累积净现金流（两个月回款）
         
-        # n个月回款累计现金流（当n>2时）
+        # n个月回款累计现金流
         if repayment_flag:
             cumulative_cash_flow_nm = round(df_extra.loc[quarter_end_idx, 1], 2) if not pd.isna(df_extra.loc[quarter_end_idx, 1]) else 0
         else:
@@ -534,7 +525,7 @@ def calculate_metrics(params: dict) -> dict:
         current_cash_demand_1m = max(0, -round(cumulative_cash_flow_1m - prev_cumulative_cash_flow_1m, 2))
         current_cash_demand_2m = max(0, -round(cumulative_cash_flow_2m - prev_cumulative_cash_flow_2m, 2))
         
-        # n个月回款当期资金需求（当n>2时）
+        # n个月回款当期资金需求
         if repayment_flag:
             current_cash_demand_nm = max(0, -round(cumulative_cash_flow_nm - prev_cumulative_cash_flow_nm, 2))
         else:
@@ -573,8 +564,7 @@ def calculate_metrics(params: dict) -> dict:
             'current_cash_demand_2m': round(current_cash_demand_2m, 2),
             'dau': round(dau, 2)
         }
-        
-        # 当n>2时，添加n个月回款相关数据
+
         if repayment_flag:
             quarter_data['cumulative_cash_flow_nm'] = round(cumulative_cash_flow_nm, 2)
             quarter_data['current_cash_demand_nm'] = round(current_cash_demand_nm, 2)
@@ -605,7 +595,6 @@ def calculate_metrics(params: dict) -> dict:
     
     # 保存DataFrame到pickle文件
     with open(data_file_path, 'wb') as f:
-        # 同时保存df和df_extra，以及p用于判断是否需要导出n个月回款数据
         save_data = {
             'df': df,
             'df_extra': df_extra if repayment_flag else None,
@@ -628,8 +617,7 @@ def calculate_metrics(params: dict) -> dict:
         "target_dau": target_dau,
         "repayment_months": repayment_months  # 返回回款月数，供前端判断显示
     }
-    
-    # 当n>2时，添加n个月回款相关指标
+
     if repayment_flag:
         key_metrics["max_cash_demand_nm"] = round(max_cash_demand_nm, 2)
         key_metrics["cumulative_cash_flow_nm_breakeven_day"] = cumulative_cash_flow_nm_breakeven_day
@@ -742,18 +730,11 @@ def export_daily_excel(project_name: str) -> bytes:
     with open(data_file_path, 'rb') as f:
         loaded_data = pickle.load(f)
     
-    # 兼容旧版本数据格式（直接保存df的情况）
-    if isinstance(loaded_data, dict):
-        df = loaded_data['df']
-        df_extra = loaded_data.get('df_extra')
-        repayment_months = loaded_data.get('repayment_months', 1)
-        repayment_flag = loaded_data.get('repayment_flag', False)
-    else:
-        # 旧版本兼容
-        df = loaded_data
-        df_extra = None
-        repayment_months = 1
-        repayment_flag = False
+
+    df = loaded_data['df']
+    df_extra = loaded_data.get('df_extra')
+    repayment_months = loaded_data.get('repayment_months', 1)
+    repayment_flag = loaded_data.get('repayment_flag', False)
     
     # 创建Excel工作簿
     wb = Workbook()
@@ -774,7 +755,7 @@ def export_daily_excel(project_name: str) -> bytes:
     # 列A(1)为空，B-I(2-9)每日，J-S(10-19)累计，T-W(20-23)用户量，X-AA(24-27)现金流，AB-AO(28-41)目标达成周期计算，AP-AQ(42-43)为空
     # 如果n>2，则增加n个月回款相关列
     
-    # 计算基础列数（不含扩展列）
+    # 计算基础列数
     base_columns = 43
     # 当n>2时增加的6列：滞后n个月现金收入、累计现金缺口、现金流打正标记、倒序求和
     extra_columns = 6 if repayment_flag else 0
@@ -789,7 +770,7 @@ def export_daily_excel(project_name: str) -> bytes:
     
     # 根据是否有扩展列调整目标达成周期计算的起始列
     if repayment_flag:
-        ws.cell(row=1, column=28, value='目标达成周期计算')  # AB列开始
+        ws.cell(row=1, column=30, value='目标达成周期计算')  # AB列开始
     else:
         ws.cell(row=1, column=28, value='目标达成周期计算')  # AB列开始
     
@@ -812,7 +793,7 @@ def export_daily_excel(project_name: str) -> bytes:
     row2_values = ['', '', '', '', '', '', '', '', '',  # A-I (1-9): 空/每日区域
                    '', '', '', '', '', '', '', '', '', '',  # J-S (10-19): 累计区域
                    '', '', '', '',  # T-W (20-23): 用户量区域
-                   '滞后一个月', '', '滞后两个月', '']  # X-AA (24-27): 现金流区域
+                   '滞后1个月', '', '滞后2个月', '']  # X-AA (24-27): 现金流区域
     
     # 当n>2时，添加滞后n个月的子分类
     if repayment_flag:
@@ -979,7 +960,7 @@ def export_daily_excel(project_name: str) -> bytes:
         for col in range(1, total_columns + 1):
             ws.cell(row=row, column=col).border = thin_border
     
-    # 调整列宽（自动适应内容）
+    # 调整列宽
     for col in range(1, total_columns + 1):
         max_length = 0
         column_letter = get_column_letter(col)
