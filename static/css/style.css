@@ -1,1119 +1,1147 @@
 /* ========================================
    IAA休闲游戏成本收益测算 - 样式文件
+   ========================================
+   采用 CSS 自定义属性实现主题统一管理，
+   便于后续扩展深色模式或品牌换肤。
    ======================================== */
 
-/* CSS变量定义 */
+/* 全局设计令牌：集中管理颜色、阴影、圆角等，避免散落的魔法值 */
 :root {
-    --primary-color: #4a90d9;
-    --primary-hover: #357abd;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    --border-color: #dee2e6;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
-    --radius: 8px;
-    --radius-sm: 4px;
-    --transition: all 0.3s ease;
+  --primary-color: #4a90d9;
+  --primary-hover: #357abd;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --border-color: #dee2e6;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --radius: 8px;
+  --radius-sm: 4px;
+  --transition: all 0.3s ease;
 }
 
-/* 全局样式 */
+/* 重置浏览器默认样式，确保跨浏览器一致表现 */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
-    line-height: 1.6;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* 头部样式 */
+/* 页面顶部：白色文字配合渐变背景形成视觉层次 */
 .header {
-    text-align: center;
-    padding: 40px 20px;
-    color: white;
-    margin-bottom: 30px;
+  margin-bottom: 30px;
+  padding: 40px 20px;
+  text-align: center;
+  color: white;
 }
 
 .header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .header .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
+  font-size: 1.1rem;
+  opacity: 0.9;
 }
 
-/* 区块样式 */
+/* 内容区块：白色卡片在渐变背景上形成浮层效果 */
 .section {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 25px;
-    margin-bottom: 25px;
+  margin-bottom: 25px;
+  padding: 25px;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .section h2 {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
 }
 
 .subsection {
-    margin-bottom: 25px;
+  margin-bottom: 25px;
 }
 
 .subsection:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .subsection h3 {
-    color: var(--dark-color);
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: var(--dark-color);
 }
 
+/* 标题前的竖线装饰，提供视觉锚点帮助用户快速扫描 */
 .subsection h3::before {
-    content: '';
-    display: inline-block;
-    width: 4px;
-    height: 20px;
-    background: var(--primary-color);
-    border-radius: 2px;
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: var(--primary-color);
+  border-radius: 2px;
 }
 
-/* 项目管理区 */
+/* 项目管理区：flex 布局保证按钮与输入框在同一行对齐 */
 .project-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 20px;
 }
 
 .project-controls .input-group {
-    flex: 1;
-    min-width: 250px;
+  flex: 1;
+  min-width: 250px;
 }
 
 .project-controls .button-group {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
-/* 输入组件 */
+/* 表单输入组件 */
 .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .input-group label {
-    font-weight: 600;
-    color: var(--dark-color);
-    font-size: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dark-color);
 }
 
 .input-group input,
 .input-group select {
-    padding: 10px 14px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    transition: var(--transition);
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
 }
 
+/* 聚焦时用浅色投影替代默认 outline，视觉更柔和 */
 .input-group input:focus,
 .input-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
 }
 
-/* 按钮样式 */
+/* ----------------------------------------
+   按钮系统
+   使用 BEM 式变体命名，便于组合和覆盖
+   ---------------------------------------- */
 .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 .btn .icon {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
 }
 
 .btn-primary {
-    background: var(--primary-color);
-    color: white;
+  color: white;
+  background: var(--primary-color);
 }
 
 .btn-primary:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
+  background: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-    background: var(--secondary-color);
-    color: white;
+  color: white;
+  background: var(--secondary-color);
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+  background: #5a6268;
 }
 
 .btn-add {
-    background: var(--success-color);
-    color: white;
-    margin-top: 15px;
+  margin-top: 15px;
+  color: white;
+  background: var(--success-color);
 }
 
 .btn-add:hover {
-    background: #218838;
+  background: #218838;
 }
 
+/* 虚线边框传达"可添加"的视觉暗示 */
 .btn-add-small {
-    background: transparent;
-    color: var(--primary-color);
-    border: 1px dashed var(--primary-color);
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    margin-top: 10px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  background: transparent;
+  border: 1px dashed var(--primary-color);
 }
 
 .btn-add-small:hover {
-    background: rgba(74, 144, 217, 0.1);
+  background: rgba(74, 144, 217, 0.1);
 }
 
 .btn-remove {
-    background: var(--danger-color);
-    color: white;
-    padding: 6px 12px;
-    font-size: 0.85rem;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: white;
+  background: var(--danger-color);
 }
 
 .btn-remove:hover {
-    background: #c82333;
+  background: #c82333;
 }
 
+/* 计算按钮使用渐变背景突出主操作 */
 .btn-calculate {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px 40px;
-    font-size: 1.2rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .btn-calculate:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
 }
 
 .btn-export {
-    background: var(--info-color);
-    color: white;
-    padding: 15px 30px;
+  padding: 15px 30px;
+  color: white;
+  background: var(--info-color);
 }
 
+/* 禁用状态去除交互反馈，避免用户误解 */
 .btn-export:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn-export:not(:disabled):hover {
-    background: #138496;
+  background: #138496;
 }
 
 .btn-download-chart {
-    background: var(--secondary-color);
-    color: white;
-    padding: 6px 12px;
-    font-size: 0.85rem;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: white;
+  background: var(--secondary-color);
 }
 
 .btn-download-chart:hover {
-    background: #5a6268;
+  background: #5a6268;
 }
 
-/* 时间段卡片 */
+/* 时间段卡片：纵向排列便于阅读多段投入配置 */
 .periods-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .period-card {
-    background: var(--light-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    padding: 20px;
-    position: relative;
+  position: relative;
+  padding: 20px;
+  background: var(--light-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
 }
 
 .period-card .period-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .period-card .period-title {
-    font-weight: 600;
-    color: var(--primary-color);
+  font-weight: 600;
+  color: var(--primary-color);
 }
 
 .period-card .period-header-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-insert {
-    background: var(--info-color);
-    color: white;
-    padding: 6px 12px;
-    font-size: 0.85rem;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: white;
+  background: var(--info-color);
 }
 
 .btn-insert:hover {
-    background: #138496;
-    transform: translateY(-1px);
+  background: #138496;
+  transform: translateY(-1px);
 }
 
 .period-card .period-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
-/* 日消耗内联样式 - 替换原有的 cost-type-group */
+/* 日消耗内联样式：跨两列以容纳 radio + 输入框的水平布局 */
 .cost-type-inline {
-    grid-column: span 2;
+  grid-column: span 2;
 }
 
 .cost-type-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
 }
 
 .radio-group-inline {
-    display: flex;
-    gap: 15px;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .cost-inputs-inline {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .cost-inputs-inline input {
-    width: 140px;
-    padding: 10px 14px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
+  width: 140px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
 }
 
 .cost-inputs-inline input:focus {
-    outline: none;
-    border-color: var(--primary-color);
+  border-color: var(--primary-color);
+  outline: none;
 }
 
 .cost-type-group .radio-group {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .cost-type-group .cost-inputs {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-/* Radio按钮组 */
+/* Radio 按钮组 */
 .radio-group {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 .radio-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .radio-label input[type="radio"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
-/* 数据输入区 */
+/* 数据输入区：浅色背景区分输入区域与页面主体 */
 .data-input-section {
-    background: var(--light-color);
-    padding: 20px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-color);
+  padding: 20px;
+  background: var(--light-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
 }
 
 .manual-input-area,
 .excel-input-area {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 /* 数据表格 */
 .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
 .data-table th,
 .data-table td {
-    padding: 10px 15px;
-    text-align: center;
-    border: 1px solid var(--border-color);
+  padding: 10px 15px;
+  text-align: center;
+  border: 1px solid var(--border-color);
 }
 
 .data-table th {
-    background: var(--primary-color);
-    color: white;
-    font-weight: 600;
+  font-weight: 600;
+  color: white;
+  background: var(--primary-color);
 }
 
 .data-table td input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    text-align: center;
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
 }
 
 .data-table td input:focus {
-    outline: none;
-    border-color: var(--primary-color);
+  border-color: var(--primary-color);
+  outline: none;
 }
 
 /* 文件上传 */
 .file-upload-row {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 .file-upload {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
+/* 当 file-upload 位于 row 内时取消自身底部间距，由父级统一管理 */
 .file-upload-row .file-upload {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
-.input-note {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-    margin: 0;
-}
-
+.input-note,
 .input-hint {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-    margin: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
 }
 
+/* 隐藏原生文件输入，用自定义 label 代替以保持视觉一致 */
 .file-upload input[type="file"] {
-    display: none;
+  display: none;
 }
 
 .file-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: white;
-    border: 2px dashed var(--primary-color);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: white;
+  border: 2px dashed var(--primary-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 .file-label:hover {
-    background: rgba(74, 144, 217, 0.1);
+  background: rgba(74, 144, 217, 0.1);
 }
 
 .excel-preview {
-    max-height: 300px;
-    overflow-y: auto;
-    background: white;
-    border-radius: var(--radius-sm);
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border-radius: var(--radius-sm);
 }
 
 .excel-preview table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .excel-preview th,
 .excel-preview td {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    text-align: center;
-    font-size: 0.9rem;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
 }
 
 .excel-preview th {
-    background: var(--light-color);
-    font-weight: 600;
+  font-weight: 600;
+  background: var(--light-color);
 }
 
 /* 设置网格 */
 .settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
 }
 
-/* 操作按钮区 */
+/* 操作按钮区：透明背景避免与卡片样式冲突 */
 .actions {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-/* 加载动画 */
+/* 全屏遮罩 + 居中旋转动画，阻止用户在计算期间操作 */
 .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .loading-spinner {
-    text-align: center;
-    color: white;
+  text-align: center;
+  color: white;
 }
 
 .spinner {
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* 结果展示区 */
+/* 结果区域入场动画，给用户"内容已更新"的反馈 */
 .results {
-    animation: fadeIn 0.5s ease;
+  animation: fade-in 0.5s ease;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* 关键指标网格 */
+/* 关键指标网格：auto-fit 自适应列数，兼容不同屏幕宽度 */
 .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
 .metric-card {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-    border-radius: var(--radius);
-    padding: 20px;
-    text-align: center;
-    transition: var(--transition);
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  border-radius: var(--radius);
+  transition: var(--transition);
 }
 
 .metric-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
+  box-shadow: var(--shadow);
+  transform: translateY(-3px);
 }
 
+/* 高亮卡片使用主题渐变色突出关键数据 */
 .metric-card.highlight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .metric-card.highlight .metric-label,
 .metric-card.highlight .metric-unit {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.metric-label {
-    font-size: 0.85rem;
-    color: var(--secondary-color);
-    margin-bottom: 8px;
-}
-
-.metric-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .metric-card.highlight .metric-value {
-    color: white;
+  color: white;
+}
+
+.metric-label {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
 }
 
 .metric-unit {
-    font-size: 0.85rem;
-    color: var(--secondary-color);
-    margin-top: 5px;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: var(--secondary-color);
 }
 
-/* 图表区 */
+/* 图表区：双栏自适应布局，窄屏自动变单栏 */
 .charts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 25px;
 }
 
 .chart-wrapper {
-    background: var(--light-color);
-    border-radius: var(--radius);
-    padding: 20px;
+  padding: 20px;
+  background: var(--light-color);
+  border-radius: var(--radius);
 }
 
 .chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .chart-header h4 {
-    color: var(--dark-color);
-    font-size: 1.1rem;
+  font-size: 1.1rem;
+  color: var(--dark-color);
 }
 
-/* 区块标题与按钮横向排列 */
+/* 区块标题与操作按钮横向排列，节省垂直空间 */
 .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .section-header h3 {
-    margin: 0;
+  margin: 0;
 }
 
 .section-header .header-buttons {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
-/* 结果表格 */
+/* 结果表格：横向滚动应对大量季度列 */
 .table-container {
-    overflow-x: auto;
-    background: var(--light-color);
-    border-radius: var(--radius);
-    padding: 15px;
+  overflow-x: auto;
+  padding: 15px;
+  background: var(--light-color);
+  border-radius: var(--radius);
 }
 
 .result-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-    min-width: 1200px;
+  width: 100%;
+  min-width: 1200px;
+  font-size: 0.85rem;
+  border-collapse: collapse;
 }
 
 .result-table th,
 .result-table td {
-    padding: 10px 8px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    white-space: nowrap;
+  padding: 10px 8px;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid var(--border-color);
 }
 
 .result-table thead th {
-    background: var(--primary-color);
-    color: white;
-    font-weight: 600;
+  font-weight: 600;
+  color: white;
+  background: var(--primary-color);
 }
 
 .result-table tbody tr:nth-child(even) {
-    background: white;
+  background: white;
 }
 
 .result-table tbody tr:nth-child(odd) {
-    background: #f8f9fa;
+  background: #f8f9fa;
 }
 
 .result-table tbody tr:hover {
-    background: rgba(74, 144, 217, 0.1);
+  background: rgba(74, 144, 217, 0.1);
 }
 
-/* 转置表格样式 - 季度在上行，指标在左列 */
+/* 转置表格：指标名在左列，季度在顶行，方便跨季度横向对比 */
 .transposed-table {
-    min-width: auto;
+  min-width: auto;
 }
 
 .transposed-table th.indicator-header,
 .transposed-table td.indicator-label,
 .transposed-table td.indent-label {
-    text-align: left;
-    font-weight: 600;
-    background: #f1f3f5;
-    color: var(--dark-color);
-    min-width: 180px;
-    white-space: nowrap;
+  min-width: 180px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--dark-color);
+  background: #f1f3f5;
 }
 
 .transposed-table td.indent-label {
-    padding-left: 20px;
-    font-weight: 400;
-    color: var(--secondary-color);
+  padding-left: 20px;
+  font-weight: 400;
+  color: var(--secondary-color);
 }
 
 .transposed-table thead th {
-    background: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    min-width: 100px;
+  min-width: 100px;
+  font-weight: 600;
+  color: white;
+  background: var(--primary-color);
 }
 
 .transposed-table tbody td {
-    text-align: right;
-    padding-right: 15px;
+  padding-right: 15px;
+  text-align: right;
 }
 
 .transposed-table tbody td.indicator-label,
 .transposed-table tbody td.indent-label {
-    text-align: left;
-    padding-right: 8px;
+  padding-right: 8px;
+  text-align: left;
 }
 
-/* 对话框 */
+/* ----------------------------------------
+   对话框（模态）
+   使用 fixed 遮罩 + flex 居中，无需 JS 计算位置
+   ---------------------------------------- */
 .dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .dialog {
-    background: white;
-    border-radius: var(--radius);
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow: hidden;
-    box-shadow: var(--shadow-hover);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
 }
 
 .dialog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .dialog-header h3 {
-    color: var(--dark-color);
+  color: var(--dark-color);
 }
 
 .btn-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--secondary-color);
-    padding: 0;
-    line-height: 1;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--secondary-color);
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-close:hover {
-    color: var(--danger-color);
+  color: var(--danger-color);
 }
 
 .dialog-body {
-    padding: 20px;
-    max-height: 400px;
-    overflow-y: auto;
+  max-height: 400px;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .dialog-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-    text-align: right;
+  padding: 15px 20px;
+  text-align: right;
+  border-top: 1px solid var(--border-color);
 }
 
-/* 对话框中的表单元素样式 */
+/* 对话框内表单：覆盖通用 input-group 的部分样式以适配弹窗场景 */
 .dialog-body .input-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .dialog-body .input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .dialog-body .input-group label .required {
-    color: var(--danger-color);
-    margin-left: 2px;
+  margin-left: 2px;
+  color: var(--danger-color);
 }
 
 .dialog-body .input-group input[type="text"] {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    transition: var(--transition);
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
 }
 
 .dialog-body .input-group input[type="text"]:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
+/* 表单校验反馈：左侧红色竖线引导视线定位错误 */
 .error-message {
-    color: var(--danger-color);
-    font-size: 0.85rem;
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: rgba(220, 53, 69, 0.1);
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--danger-color);
+  margin-top: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--danger-color);
+  background: rgba(220, 53, 69, 0.1);
+  border-left: 3px solid var(--danger-color);
+  border-radius: var(--radius-sm);
 }
 
 .hint-message {
-    color: #666;
-    font-size: 0.85rem;
-    margin-top: 8px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #666;
 }
 
 .project-list {
-    list-style: none;
+  list-style: none;
 }
 
 .project-list li {
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 .project-list li:hover {
-    background: var(--light-color);
-    border-color: var(--primary-color);
+  background: var(--light-color);
+  border-color: var(--primary-color);
 }
 
 .project-list li .project-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .project-list li .project-name {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .project-list li .project-time {
-    font-size: 0.8rem;
-    color: #888;
+  font-size: 0.8rem;
+  color: #888;
 }
 
 .project-list li .project-actions {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
 .project-list li .btn-delete {
-    background: var(--danger-color);
-    color: white;
-    padding: 4px 10px;
-    font-size: 0.8rem;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: white;
+  background: var(--danger-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
 }
 
 .project-list li .btn-delete:hover {
-    background: #c82333;
+  background: #c82333;
 }
 
 /* 页脚 */
 .footer {
-    text-align: center;
-    padding: 30px 20px;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
+  padding: 30px 20px;
+  font-size: 0.9rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .charts-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .chart-wrapper {
-        min-width: 100%;
-    }
-    
-    .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .project-controls {
-        flex-direction: column;
-    }
-    
-    .project-controls .button-group {
-        width: 100%;
-        justify-content: stretch;
-    }
-    
-    .project-controls .button-group .btn {
-        flex: 1;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .section {
-        padding: 15px;
-    }
-    
-    .metrics-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .actions {
-        flex-direction: column;
-    }
-    
-    .actions .btn {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .welcome-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .welcome-card {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .cost-type-inline {
-        grid-column: 1 / -1;
-    }
-
-    .cost-inputs-inline {
-        flex-wrap: wrap;
-    }
-
-    .cost-inputs-inline input {
-        width: 80px;
-    }
-}
-
-/* 数值颜色 */
+/* 数值正负色彩标记，帮助用户快速识别盈亏状态 */
 .positive {
-    color: var(--success-color);
+  color: var(--success-color);
 }
 
 .negative {
-    color: var(--danger-color);
+  color: var(--danger-color);
 }
 
-/* 工具提示 */
+/* 纯 CSS 工具提示：轻量实现，无需额外 JS 库 */
 [data-tooltip] {
-    position: relative;
-    cursor: help;
+  position: relative;
+  cursor: help;
 }
 
 [data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--dark-color);
-    color: white;
-    padding: 5px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: var(--transition);
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: white;
+  background: var(--dark-color);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%);
+  transition: var(--transition);
 }
 
 [data-tooltip]:hover::after {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ========================================
-   欢迎页面样式
+   欢迎页面
+   首屏引导用户选择"新建"或"加载"项目
    ======================================== */
 .welcome-section {
-    text-align: center;
+  text-align: center;
 }
 
 .welcome-content {
-    padding: 40px 20px;
+  padding: 40px 20px;
 }
 
 .welcome-text {
-    font-size: 1.2rem;
-    color: var(--secondary-color);
-    margin-bottom: 40px;
+  margin-bottom: 40px;
+  font-size: 1.2rem;
+  color: var(--secondary-color);
 }
 
 .welcome-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
 }
 
 .welcome-card {
-    background: var(--light-color);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius);
-    padding: 40px 50px;
-    cursor: pointer;
-    transition: var(--transition);
-    min-width: 250px;
+  min-width: 250px;
+  padding: 40px 50px;
+  background: var(--light-color);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 .welcome-card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-5px);
 }
 
 .welcome-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
+  margin-bottom: 15px;
+  font-size: 3rem;
 }
 
 .welcome-card h3 {
-    color: var(--dark-color);
-    font-size: 1.3rem;
-    margin-bottom: 10px;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+  color: var(--dark-color);
 }
 
 .welcome-card p {
-    color: var(--secondary-color);
-    font-size: 0.95rem;
+  font-size: 0.95rem;
+  color: var(--secondary-color);
 }
 
 /* 返回首页按钮 */
 .btn-warning {
-    background: var(--warning-color);
-    color: var(--dark-color);
+  color: var(--dark-color);
+  background: var(--warning-color);
 }
 
 .btn-warning:hover {
-    background: #e0a800;
+  background: #e0a800;
 }
 
+/* 保存状态提示：固定在右上角，胶囊形状便于识别 */
 .save-status {
-    position: fixed;
-    top: 12px;
-    right: 20px;
-    padding: 10px 20px;
-    border-radius: 999px;
-    font-size: 16px;
-    font-weight: 600;
-    z-index: 1000;
-    transition: all 0.2s ease;
+  position: fixed;
+  top: 12px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: all 0.2s ease;
 }
 
-.save-status.saved {
-    background: #dcfce7;
-    color: #166534;
+/* 状态类使用 is- 前缀区分交互状态与结构样式 */
+.save-status.is-saved {
+  color: #166534;
+  background: #dcfce7;
 }
 
-.save-status.unsaved {
-    background: #fef3c7;
-    color: #92400e;
+.save-status.is-unsaved {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+/* ========================================
+   响应式设计
+   断点策略：768px (平板) / 480px (手机)
+   ======================================== */
+
+/* 平板及以下：简化多栏布局为单栏，确保可读性 */
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-wrapper {
+    min-width: 100%;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .project-controls {
+    flex-direction: column;
+  }
+
+  .project-controls .button-group {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .project-controls .button-group .btn {
+    flex: 1;
+  }
+
+  .welcome-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .welcome-card {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .cost-type-inline {
+    grid-column: 1 / -1;
+  }
+
+  .cost-inputs-inline {
+    flex-wrap: wrap;
+  }
+
+  .cost-inputs-inline input {
+    width: 80px;
+  }
+}
+
+/* 手机：进一步压缩间距，按钮改为全宽方便触控 */
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+
+  .section {
+    padding: 15px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
 }

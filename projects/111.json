@@ -1,0 +1,186 @@
+{
+  "project_name": "111",
+  "investment_periods": [
+    {
+      "start": "2025-12-26",
+      "end": "2026-02-26",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2026-02-27",
+      "end": "2026-04-27",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2026-04-28",
+      "end": "2026-06-28",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2026-06-29",
+      "end": "2026-08-29",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2026-08-30",
+      "end": "2026-10-30",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2026-10-31",
+      "end": "2026-12-31",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2027-01-01",
+      "end": "2027-03-01",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2027-03-02",
+      "end": "2027-05-02",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2027-05-03",
+      "end": "2027-07-03",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    },
+    {
+      "start": "2027-07-04",
+      "end": "2027-09-04",
+      "cost_type": "fixed",
+      "cost_value": 10,
+      "cost_start": 5,
+      "cost_end": 15,
+      "dnu": 1,
+      "team_size": 10,
+      "labor_cost": 0.025,
+      "other_cost": 0.1
+    }
+  ],
+  "roi_data": {
+    "type": "manual",
+    "points": [
+      {
+        "day": 1,
+        "value": 0.5
+      },
+      {
+        "day": 7,
+        "value": 3.5
+      },
+      {
+        "day": 30,
+        "value": 15
+      },
+      {
+        "day": 60,
+        "value": 30
+      },
+      {
+        "day": 90,
+        "value": 45
+      },
+      {
+        "day": 100,
+        "value": 50
+      }
+    ]
+  },
+  "retention_data": {
+    "type": "manual",
+    "points": [
+      {
+        "day": 0,
+        "value": 100
+      },
+      {
+        "day": 1,
+        "value": 45
+      },
+      {
+        "day": 7,
+        "value": 25
+      },
+      {
+        "day": 30,
+        "value": 12
+      },
+      {
+        "day": 60,
+        "value": 8
+      },
+      {
+        "day": 90,
+        "value": 6
+      }
+    ]
+  },
+  "repayment_months": 3,
+  "target_dau": 10,
+  "savedAt": "2026-02-27T16:23:47.915109"
+}
