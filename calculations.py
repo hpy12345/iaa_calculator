@@ -58,15 +58,12 @@ COL_CASH_1M_SUM = 32       # 现金流打正倒序求和（滞后1个月）
 COL_CASH_2M_FLAG = 33      # 现金流打正标记（滞后2个月）
 COL_CASH_2M_SUM = 34       # 现金流打正倒序求和（滞后2个月）
 COL_DAU_10M_FLAG = 35      # 达成1000万DAU标记
-COL_DAU_10M_SUM = 36       # 达成1000万DAU倒序求和
-COL_DAU_2M_FLAG = 37       # 达成200万DAU标记
-COL_DAU_2M_SUM = 38        # 达成200万DAU倒序求和
-COL_DAU_TARGET_FLAG = 39   # 达成目标DAU标记
-COL_DAU_TARGET_SUM = 40    # 达成目标DAU倒序求和
-COL_ROI_DAILY = 41         # 每日ROI增量
-COL_RETENTION = 42         # 留存率
+COL_DAU_2M_FLAG = 36       # 达成200万DAU标记
+COL_DAU_TARGET_FLAG = 37   # 达成目标DAU标记
+COL_ROI_DAILY = 38         # 每日ROI增量
+COL_RETENTION = 39         # 留存率
 
-TOTAL_DF_COLS = 43  # DataFrame总列数
+TOTAL_DF_COLS = 40  # DataFrame总列数
 
 
 # ---------------------------------------------------------------------------
@@ -511,11 +508,8 @@ def _build_daily_dataframe(
         COL_CASH_2M_FLAG: cash_2m_flag,
         COL_CASH_2M_SUM: _reverse_cumsum(cash_2m_flag),
         COL_DAU_10M_FLAG: dau_10m_flag,
-        COL_DAU_10M_SUM: _reverse_cumsum(dau_10m_flag),
         COL_DAU_2M_FLAG: dau_2m_flag,
-        COL_DAU_2M_SUM: _reverse_cumsum(dau_2m_flag),
         COL_DAU_TARGET_FLAG: dau_target_flag,
-        COL_DAU_TARGET_SUM: _reverse_cumsum(dau_target_flag),
     }
     for col_idx, values in assignments.items():
         df.iloc[:, col_idx] = values
@@ -919,10 +913,10 @@ def _write_excel_headers(ws, repayment_months: int, repayment_flag: bool) -> Non
 
     if repayment_flag:
         ws.merge_cells("X1:AC1")
-        ws.merge_cells("AD1:AU1")
+        ws.merge_cells("AD1:AR1")
     else:
         ws.merge_cells("X1:AA1")
-        ws.merge_cells("AB1:AO1")
+        ws.merge_cells("AB1:AN1")
 
     # ---------- 第2行：子分类表头 ----------
     row2 = [""] * 9 + [""] * 10 + [""] * 4 + ["滞后1个月", "", "滞后2个月", ""]
@@ -933,7 +927,7 @@ def _write_excel_headers(ws, repayment_months: int, repayment_flag: bool) -> Non
              "累计现金流打正（滞后2个月）", ""]
     if repayment_flag:
         row2 += [f"累计现金流打正（滞后{repayment_months}个月）", ""]
-    row2 += ["1000万DAU", "", "200万DAU", "", "目标DAU", "", "", ""]
+    row2 += ["1000万DAU", "200万DAU", "目标DAU", "", ""]
 
     for col, val in enumerate(row2, 1):
         ws.cell(row=2, column=col, value=val)
@@ -943,11 +937,11 @@ def _write_excel_headers(ws, repayment_months: int, repayment_flag: bool) -> Non
 
     if repayment_flag:
         for rng in ["AB2:AC2", "AD2:AE2", "AF2:AG2", "AH2:AI2",
-                    "AJ2:AK2", "AL2:AM2", "AN2:AO2", "AP2:AQ2", "AR2:AS2"]:
+                    "AJ2:AK2", "AL2:AM2", "AN2:AO2", "AP2:AQ2"]:
             ws.merge_cells(rng)
     else:
         for rng in ["AB2:AC2", "AD2:AE2", "AF2:AG2", "AH2:AI2",
-                    "AJ2:AK2", "AL2:AM2", "AN2:AO2"]:
+                    "AJ2:AK2"]:
             ws.merge_cells(rng)
 
     # ---------- 第3行：具体列名 ----------
@@ -968,9 +962,9 @@ def _write_excel_headers(ws, repayment_months: int, repayment_flag: bool) -> Non
     if repayment_flag:
         row3 += ["现金流为正=0，为负=1", "倒序求和"]
     row3 += [
-        "1000万以上DAU=0，以下=1", "倒序求和",
-        "200万以上DAU=0，以下=1", "倒序求和",
-        "xx万以上DAU=0，以下=1", "倒序求和",
+        "1000万以上DAU=0，以下=1",
+        "200万以上DAU=0，以下=1",
+        "xx万以上DAU=0，以下=1",
         "ROI of the day", "Retention",
     ]
 
@@ -1045,11 +1039,8 @@ def _write_excel_data(
 
         row_data += [
             int(df.iloc[i, COL_DAU_10M_FLAG]),
-            int(df.iloc[i, COL_DAU_10M_SUM]),
             int(df.iloc[i, COL_DAU_2M_FLAG]),
-            int(df.iloc[i, COL_DAU_2M_SUM]),
             int(df.iloc[i, COL_DAU_TARGET_FLAG]),
-            int(df.iloc[i, COL_DAU_TARGET_SUM]),
             _safe_round(df.iloc[i, COL_ROI_DAILY], 4),
             _safe_round(df.iloc[i, COL_RETENTION], 4),
         ]
