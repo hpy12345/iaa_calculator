@@ -97,6 +97,10 @@
                 <input type="radio" name="roiInputType" value="excel" onchange="toggleRoiInput('excel')" />
                 Excel导入
               </label>
+              <label class="radio-label" id="roiCurveRadioLabel" style="display:none;">
+                <input type="radio" name="roiInputType" value="curve" onchange="toggleRoiInput('curve')" />
+                <span id="roiCurveRadioText">ROI曲线</span>
+              </label>
             </div>
 
             <!-- 手动输入区 -->
@@ -130,6 +134,11 @@
               </div>
               <div id="roiExcelPreview" class="excel-preview" aria-live="polite"></div>
             </div>
+
+            <!-- 曲线加载区 -->
+            <div id="roiCurveInput" class="curve-input-area" style="display: none;">
+              <div id="roiCurvePreview" class="excel-preview" aria-live="polite"></div>
+            </div>
           </div>
         </div>
 
@@ -151,6 +160,10 @@
               <label class="radio-label">
                 <input type="radio" name="retentionInputType" value="excel" onchange="toggleRetentionInput('excel')" />
                 Excel导入
+              </label>
+              <label class="radio-label" id="retentionCurveRadioLabel" style="display:none;">
+                <input type="radio" name="retentionInputType" value="curve" onchange="toggleRetentionInput('curve')" />
+                <span id="retentionCurveRadioText">留存率曲线</span>
               </label>
             </div>
 
@@ -184,6 +197,11 @@
                 <p class="input-note">为确保计算准确，导入天数最好与投资天数相同</p>
               </div>
               <div id="retentionExcelPreview" class="excel-preview" aria-live="polite"></div>
+            </div>
+
+            <!-- 曲线加载区 -->
+            <div id="retentionCurveInput" class="curve-input-area" style="display: none;">
+              <div id="retentionCurvePreview" class="excel-preview" aria-live="polite"></div>
             </div>
           </div>
         </div>

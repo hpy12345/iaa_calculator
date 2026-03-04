@@ -425,43 +425,37 @@ body {
   font-size: 0.82rem;
 }
 
-/* 按钮组在 period-grid 末尾，不压缩，与输入框同一水平 */
-.period-card .period-grid .period-header-actions {
-  flex: 0 0 auto;
-  margin-left: auto;
-  margin-right: 12px;
-  align-self: center;
-  padding-top: 22px;
-}
-
-/* 时间段卡片主布局：flex 单行，起始/结束时间与参数组并排 */
+/* 时间段卡片主布局：flex 自动换行，起始/结束时间与参数组并排，容器不足时自动折行 */
 .period-card .period-grid {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 15px;
 }
 
-/* 起始/结束时间固定宽度 */
+/* 起始/结束时间：设置最小宽度，允许在容器不足时换行 */
 .period-card .period-grid .input-group:has(.period-start),
 .period-card .period-grid .input-group:has(.period-end) {
   flex: 0 0 150px;
+  min-width: 120px;
 }
 
-/* 五个参数输入框包裹容器：间距与起始/结束时间保持一致 */
+/* 五个参数输入框包裹容器：允许换行，自适应容器宽度 */
 .period-params-group {
   display: flex;
   flex: 1 1 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 15px;
+  min-width: 0;
 }
 
-/* DNU、团队规模：限制宽度 */
+/* DNU、团队规模：设置弹性宽度，最小宽度保证可读性 */
 .period-params-group .input-group:has(.period-dnu),
 .period-params-group .input-group:has(.period-team-size) {
-  flex: 0 0 100px;
-  min-width: 0;
+  flex: 1 1 90px;
+  min-width: 80px;
+  max-width: 120px;
   overflow: hidden;
 }
 
@@ -473,11 +467,12 @@ body {
   text-align: center;
 }
 
-/* 用工成本、其他运营成本：限制宽度 */
+/* 用工成本、其他运营成本：弹性宽度，最小宽度保证内容不截断 */
 .period-params-group .input-group:has(.period-labor-cost),
 .period-params-group .input-group:has(.period-other-cost) {
-  flex: 0 0 200px;
-  min-width: 0;
+  flex: 1 1 160px;
+  min-width: 140px;
+  max-width: 220px;
   overflow: hidden;
 }
 
@@ -488,15 +483,16 @@ body {
   padding: 10px 6px;
 }
 
-/* 日消耗内联样式：占据剩余空间 */
+/* 日消耗内联样式：占据剩余空间，最小宽度确保内容完整显示 */
 .cost-type-inline {
-  flex: 1 1 auto;
-  min-width: 280px;
+  flex: 1 1 260px;
+  min-width: 240px;
+  max-width: 100%;
 }
 
 .cost-type-wrapper {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
@@ -585,7 +581,8 @@ body {
 }
 
 .manual-input-area,
-.excel-input-area {
+.excel-input-area,
+.curve-input-area {
   margin-top: 15px;
 }
 
@@ -1424,18 +1421,31 @@ body {
     max-width: 300px;
   }
 
-  /* 移动端：period-grid 和 period-params-group 允许换行 */
-  .period-card .period-grid {
-    flex-wrap: wrap;
+  /* 移动端：进一步调整时间段卡片布局 */
+  .period-card .period-grid .input-group:has(.period-start),
+  .period-card .period-grid .input-group:has(.period-end) {
+    flex: 1 1 120px;
   }
 
-  .period-params-group {
-    flex-wrap: wrap;
-    width: 100%;
+  .period-params-group .input-group:has(.period-dnu),
+  .period-params-group .input-group:has(.period-team-size) {
+    flex: 1 1 80px;
+    max-width: 50%;
+  }
+
+  .period-params-group .input-group:has(.period-labor-cost),
+  .period-params-group .input-group:has(.period-other-cost) {
+    flex: 1 1 140px;
+    max-width: 100%;
   }
 
   .cost-type-inline {
-    width: 100%;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .cost-type-wrapper {
+    flex-wrap: wrap;
   }
 
   .cost-inputs-inline {

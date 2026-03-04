@@ -11,8 +11,8 @@
 // 模块状态 —— 用 let 而非 const，因为运行期会被多次重置
 // ========================================
 let periodCounter = 0;
-let roiData = { type: 'manual', points: [] };
-let retentionData = { type: 'manual', points: [] };
+let roiData = { type: 'manual', points: [], curveName: '' };
+let retentionData = { type: 'manual', points: [], curveName: '' };
 let calculationResults = null;
 let dauChart = null;
 let financeChart = null;
@@ -174,8 +174,8 @@ async function initializeAndSaveProject(projectName) {
   periodCounter = 0;
 
   // 重置全局变量
-  roiData = { type: 'manual', points: [] };
-  retentionData = { type: 'manual', points: [] };
+  roiData = { type: 'manual', points: [], curveName: '' };
+  retentionData = { type: 'manual', points: [], curveName: '' };
   calculationResults = null;
 
   // ROI：手动
@@ -188,6 +188,13 @@ async function initializeAndSaveProject(projectName) {
   if (roiExcelPreview) roiExcelPreview.innerHTML = '';
   const roiFileInput = $id('roiExcelFile');
   if (roiFileInput) roiFileInput.value = '';
+  // 隐藏曲线radio选项并重置标签
+  const roiCurveRadioLabel = $id('roiCurveRadioLabel');
+  if (roiCurveRadioLabel) roiCurveRadioLabel.style.display = 'none';
+  const roiCurveRadioText = $id('roiCurveRadioText');
+  if (roiCurveRadioText) roiCurveRadioText.textContent = 'ROI';
+  const roiCurvePreview = $id('roiCurvePreview');
+  if (roiCurvePreview) roiCurvePreview.innerHTML = '';
 
   // 添加默认值
   addRoiRow(1, 0.5);
@@ -206,6 +213,13 @@ async function initializeAndSaveProject(projectName) {
   if (retentionExcelPreview) retentionExcelPreview.innerHTML = '';
   const retentionFileInput = $id('retentionExcelFile');
   if (retentionFileInput) retentionFileInput.value = '';
+  // 隐藏曲线radio选项并重置标签
+  const retentionCurveRadioLabel = $id('retentionCurveRadioLabel');
+  if (retentionCurveRadioLabel) retentionCurveRadioLabel.style.display = 'none';
+  const retentionCurveRadioText = $id('retentionCurveRadioText');
+  if (retentionCurveRadioText) retentionCurveRadioText.textContent = '留存率';
+  const retentionCurvePreview = $id('retentionCurvePreview');
+  if (retentionCurvePreview) retentionCurvePreview.innerHTML = '';
 
   addRetentionRow(1, 100);
   addRetentionRow(1, 45);
@@ -388,11 +402,26 @@ async function loadProject(projectName) {
     // ROI 数据
     if (projectData.roi_data) {
       const roiType = projectData.roi_data.type || 'manual';
-      const roiRadio = $qs(`input[name="roiInputType"][value="${roiType}"]`);
-      if (roiRadio) roiRadio.checked = true;
-      toggleRoiInput(roiType);
-
-      if (roiType === 'manual') {
+      if (roiType === 'curve') {
+        // 曲线模式：需先显示曲线 radio 选项并设置标签
+        const curveName = projectData.roi_data.curveName || 'ROI';
+        const roiCurveRadioLabel = $id('roiCurveRadioLabel');
+        const roiCurveRadioText = $id('roiCurveRadioText');
+        if (roiCurveRadioLabel) roiCurveRadioLabel.style.display = '';
+        if (roiCurveRadioText) roiCurveRadioText.textContent = `${curveName}`;
+        const roiRadio = $qs('input[name="roiInputType"][value="curve"]');
+        if (roiRadio) roiRadio.checked = true;
+        toggleRoiInput('curve');
+        roiData.points = projectData.roi_data.points || [];
+        roiData.curveName = curveName;
+        const previewData = roiData.points.slice(0, 30);
+        displayExcelPreview('roiCurvePreview', previewData, 'ROI (%)', roiData.points.length);
+        const manualBody = $id('roiManualBody');
+        if (manualBody) manualBody.innerHTML = '';
+      } else if (roiType === 'manual') {
+        const roiRadio = $qs('input[name="roiInputType"][value="manual"]');
+        if (roiRadio) roiRadio.checked = true;
+        toggleRoiInput('manual');
         const manualBody = $id('roiManualBody');
         if (manualBody) manualBody.innerHTML = '';
         if (projectData.roi_data.points && projectData.roi_data.points.length > 0) {
@@ -404,6 +433,9 @@ async function loadProject(projectName) {
         const fileInput = $id('roiExcelFile');
         if (fileInput) fileInput.value = '';
       } else {
+        const roiRadio = $qs(`input[name="roiInputType"][value="${roiType}"]`);
+        if (roiRadio) roiRadio.checked = true;
+        toggleRoiInput(roiType);
         roiData.points = projectData.roi_data.points || [];
         updateRoiExcelPreview(roiData.points);
         const manualBody = $id('roiManualBody');
@@ -420,11 +452,26 @@ async function loadProject(projectName) {
     // retention 数据
     if (projectData.retention_data) {
       const retentionType = projectData.retention_data.type || 'manual';
-      const retentionRadio = $qs(`input[name="retentionInputType"][value="${retentionType}"]`);
-      if (retentionRadio) retentionRadio.checked = true;
-      toggleRetentionInput(retentionType);
-
-      if (retentionType === 'manual') {
+      if (retentionType === 'curve') {
+        // 曲线模式：需先显示曲线 radio 选项并设置标签
+        const curveName = projectData.retention_data.curveName || '留存率';
+        const retentionCurveRadioLabel = $id('retentionCurveRadioLabel');
+        const retentionCurveRadioText = $id('retentionCurveRadioText');
+        if (retentionCurveRadioLabel) retentionCurveRadioLabel.style.display = '';
+        if (retentionCurveRadioText) retentionCurveRadioText.textContent = `${curveName}`;
+        const retentionRadio = $qs('input[name="retentionInputType"][value="curve"]');
+        if (retentionRadio) retentionRadio.checked = true;
+        toggleRetentionInput('curve');
+        retentionData.points = projectData.retention_data.points || [];
+        retentionData.curveName = curveName;
+        const previewData = retentionData.points.slice(0, 30);
+        displayExcelPreview('retentionCurvePreview', previewData, '留存率 (%)', retentionData.points.length);
+        const manualBody = $id('retentionManualBody');
+        if (manualBody) manualBody.innerHTML = '';
+      } else if (retentionType === 'manual') {
+        const retentionRadio = $qs('input[name="retentionInputType"][value="manual"]');
+        if (retentionRadio) retentionRadio.checked = true;
+        toggleRetentionInput('manual');
         const manualBody = $id('retentionManualBody');
         if (manualBody) manualBody.innerHTML = '';
         if (projectData.retention_data.points && projectData.retention_data.points.length > 0) {
@@ -436,6 +483,9 @@ async function loadProject(projectName) {
         const fileInput = $id('retentionExcelFile');
         if (fileInput) fileInput.value = '';
       } else {
+        const retentionRadio = $qs(`input[name="retentionInputType"][value="${retentionType}"]`);
+        if (retentionRadio) retentionRadio.checked = true;
+        toggleRetentionInput(retentionType);
         retentionData.points = projectData.retention_data.points || [];
         updateRetentionExcelPreview(retentionData.points);
         const manualBody = $id('retentionManualBody');
@@ -555,6 +605,10 @@ async function addInvestmentPeriod(data = null, insertBeforeElement = null, skip
   periodCard.innerHTML = `
     <div class="period-header">
       <span class="period-title">时间段 ${periodCounter}</span>
+      <div class="period-header-actions">
+        <button type="button" class="btn btn-insert" data-action="insert-before">⬆ 向上插入</button>
+        <button type="button" class="btn btn-remove" data-action="remove">删除</button>
+      </div>
     </div>
     <div class="period-grid">
       <div class="input-group">
@@ -614,10 +668,6 @@ ${buildCurveOptions(retentionCurves, selectedRetentionCurveId, '全局曲线')}
             </div>
           </div>
         </div>
-      </div>
-      <div class="period-header-actions">
-        <button type="button" class="btn btn-insert" data-action="insert-before">⬆ 向上插入</button>
-        <button type="button" class="btn btn-remove" data-action="remove">删除</button>
       </div>
     </div>
   `;
@@ -745,8 +795,10 @@ function toggleCostType(periodIdOrElement, type) {
 function toggleRoiInput(type) {
   const manual = $id('roiManualInput');
   const excel = $id('roiExcelInput');
+  const curve = $id('roiCurveInput');
   if (manual) manual.style.display = type === 'manual' ? '' : 'none';
   if (excel) excel.style.display = type === 'excel' ? '' : 'none';
+  if (curve) curve.style.display = type === 'curve' ? '' : 'none';
   roiData.type = type;
   markUnsaved();
 }
@@ -844,8 +896,10 @@ function handleRoiExcel(event) {
 function toggleRetentionInput(type) {
   const manual = $id('retentionManualInput');
   const excel = $id('retentionExcelInput');
+  const curve = $id('retentionCurveInput');
   if (manual) manual.style.display = type === 'manual' ? '' : 'none';
   if (excel) excel.style.display = type === 'excel' ? '' : 'none';
+  if (curve) curve.style.display = type === 'curve' ? '' : 'none';
   retentionData.type = type;
   markUnsaved();
 }
@@ -976,7 +1030,12 @@ function collectGlobalDataByType(type, stateRef) {
   const points = inputType === 'manual'
     ? collectManualDataPoints(type)
     : ((stateRef && stateRef.points) ? stateRef.points : []);
-  return { type: inputType, points };
+  const result = { type: inputType, points };
+  // 若为曲线模式，保存曲线名称以便项目加载时恢复
+  if (inputType === 'curve' && stateRef && stateRef.curveName) {
+    result.curveName = stateRef.curveName;
+  }
+  return result;
 }
 
 async function collectAllData() {
@@ -1876,20 +1935,33 @@ function filterCurveList() {
 /** 将曲线数据应用到对应输入区 */
 function applyCurveData(curve) {
   if (curve.type === 'roi') {
-    // 切换到 Excel 模式，与 Excel 导入保持一致
-    const radio = $qs('input[name="roiInputType"][value="excel"]');
-    if (radio) { radio.checked = true; toggleRoiInput('excel'); }
-    // 写入数据点
+    // 显示曲线 radio 选项并更新标签文字
+    const radioLabel = $id('roiCurveRadioLabel');
+    const radioText = $id('roiCurveRadioText');
+    if (radioLabel) radioLabel.style.display = '';
+    if (radioText) radioText.textContent = `${curve.name}`;
+    // 切换到曲线模式
+    const radio = $qs('input[name="roiInputType"][value="curve"]');
+    if (radio) { radio.checked = true; toggleRoiInput('curve'); }
+    // 写入数据点和曲线名称
     roiData.points = curve.points.map(p => ({ day: p.day, value: p.value }));
-    // 渲染预览：前30条，数值保留两位小数
+    roiData.curveName = curve.name;
+    // 渲染曲线预览：前30条，格式与 Excel 导入一致
     const previewData = roiData.points.slice(0, 30);
-    displayExcelPreview('roiExcelPreview', previewData, 'ROI (%)', roiData.points.length);
+    displayExcelPreview('roiCurvePreview', previewData, 'ROI (%)', roiData.points.length);
   } else {
-    const radio = $qs('input[name="retentionInputType"][value="excel"]');
-    if (radio) { radio.checked = true; toggleRetentionInput('excel'); }
+    // 显示曲线 radio 选项并更新标签文字
+    const radioLabel = $id('retentionCurveRadioLabel');
+    const radioText = $id('retentionCurveRadioText');
+    if (radioLabel) radioLabel.style.display = '';
+    if (radioText) radioText.textContent = `${curve.name}`;
+    // 切换到曲线模式
+    const radio = $qs('input[name="retentionInputType"][value="curve"]');
+    if (radio) { radio.checked = true; toggleRetentionInput('curve'); }
     retentionData.points = curve.points.map(p => ({ day: p.day, value: p.value }));
+    retentionData.curveName = curve.name;
     const previewData = retentionData.points.slice(0, 30);
-    displayExcelPreview('retentionExcelPreview', previewData, '留存率 (%)', retentionData.points.length);
+    displayExcelPreview('retentionCurvePreview', previewData, '留存率 (%)', retentionData.points.length);
   }
   markUnsaved();
   closeCurveLoadDialog();
