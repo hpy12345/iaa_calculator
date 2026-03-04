@@ -83,7 +83,7 @@
           <div class="subsection-header">
             <h3>ROI数据</h3>
             <div class="curve-actions">
-              <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('roi')" aria-label="加载ROI数据曲线">📂 加载曲线</button>
+              <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('roi')" aria-label="管理ROI数据曲线">📂 管理曲线</button>
               <button type="button" class="btn btn-curve-save" onclick="showCurveSaveDialog('roi')" aria-label="保存ROI数据曲线">💾 保存曲线</button>
             </div>
           </div>
@@ -97,10 +97,8 @@
                 <input type="radio" name="roiInputType" value="excel" onchange="toggleRoiInput('excel')" />
                 Excel导入
               </label>
-              <label class="radio-label" id="roiCurveRadioLabel" style="display:none;">
-                <input type="radio" name="roiInputType" value="curve" onchange="toggleRoiInput('curve')" />
-                <span id="roiCurveRadioText">ROI曲线</span>
-              </label>
+              <!-- 本地保存的ROI曲线 radio 选项，由 JS 动态渲染 -->
+              <div id="roiSavedCurveRadios" class="saved-curve-radios"></div>
             </div>
 
             <!-- 手动输入区 -->
@@ -147,7 +145,7 @@
           <div class="subsection-header">
             <h3>留存率数据</h3>
             <div class="curve-actions">
-              <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('retention')" aria-label="加载留存率数据曲线">📂 加载曲线</button>
+              <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('retention')" aria-label="管理留存率数据曲线">📂 管理曲线</button>
               <button type="button" class="btn btn-curve-save" onclick="showCurveSaveDialog('retention')" aria-label="保存留存率数据曲线">💾 保存曲线</button>
             </div>
           </div>
@@ -161,10 +159,8 @@
                 <input type="radio" name="retentionInputType" value="excel" onchange="toggleRetentionInput('excel')" />
                 Excel导入
               </label>
-              <label class="radio-label" id="retentionCurveRadioLabel" style="display:none;">
-                <input type="radio" name="retentionInputType" value="curve" onchange="toggleRetentionInput('curve')" />
-                <span id="retentionCurveRadioText">留存率曲线</span>
-              </label>
+              <!-- 本地保存的留存率曲线 radio 选项，由 JS 动态渲染 -->
+              <div id="retentionSavedCurveRadios" class="saved-curve-radios"></div>
             </div>
 
             <!-- 手动输入区 -->
@@ -416,13 +412,13 @@
       </div>
     </div>
 
-    <!-- 加载数据曲线对话框 -->
+    <!-- 管理数据曲线对话框 -->
     <div id="curveLoadDialog" class="dialog-overlay" style="display: none;"
          role="dialog" aria-modal="true" aria-labelledby="curveLoadDialogTitle"
          aria-hidden="true" tabindex="-1">
       <div class="dialog curve-load-dialog">
         <div class="dialog-header">
-          <h3 id="curveLoadDialogTitle">加载数据曲线</h3>
+          <h3 id="curveLoadDialogTitle">管理数据曲线</h3>
           <button type="button" class="btn-close" onclick="closeCurveLoadDialog()" aria-label="关闭">&times;</button>
         </div>
         <div class="dialog-body">

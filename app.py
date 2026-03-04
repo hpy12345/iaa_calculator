@@ -297,7 +297,7 @@ def list_curves():
             return jsonify({'error': '无效的曲线类型，必须为 roi 或 retention'}), 400
 
         curves = _load_curves_from_dir(_get_curve_dir(curve_type))
-        curves.sort(key=lambda x: x.get('updatedAt', ''), reverse=True)
+        curves.sort(key=lambda x: x.get('updatedAt', ''))
         return jsonify({'success': True, 'curves': curves})
 
     except Exception as e:
@@ -312,7 +312,7 @@ def list_all_curves():
         for curve_dir in _CURVE_DIR_MAP.values():
             all_curves.extend(_load_curves_from_dir(curve_dir))
 
-        all_curves.sort(key=lambda x: x.get('updatedAt', ''), reverse=True)
+        all_curves.sort(key=lambda x: x.get('updatedAt', ''))
         return jsonify({'success': True, 'curves': all_curves})
 
     except Exception as e:
@@ -344,6 +344,45 @@ def delete_curve():
 
     except Exception as e:
         return jsonify({'error': f'删除曲线时发生错误: {str(e)}'}), 500
+
+
+@app.route('/rename_curve', methods=['POST'])
+def rename_curve():
+    """重命名指定曲线。"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': '未收到有效的请求数据'}), 400
+
+        curve_type = data.get('type', '').strip()
+        if curve_type not in _CURVE_DIR_MAP:
+            return jsonify({'error': '无效的曲线类型，必须为 roi 或 retention'}), 400
+
+        curve_id = data.get('id', '').strip()
+        if not curve_id:
+            return jsonify({'error': '曲线ID不能为空'}), 400
+
+        new_name = data.get('name', '').strip()
+        if not new_name:
+            return jsonify({'error': '新名称不能为空'}), 400
+
+        file_path = _get_curve_file_path(curve_type, curve_id)
+        if not file_path or not os.path.exists(file_path):
+            return jsonify({'error': '曲线不存在'}), 404
+
+        with open(file_path, 'r', encoding='utf-8') as f:
+            curve_data = json.load(f)
+
+        curve_data['name'] = new_name
+        curve_data['updatedAt'] = datetime.now().isoformat()
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(curve_data, f, ensure_ascii=False, indent=2)
+
+        return jsonify({'success': True, 'message': f'曲线已重命名为 "{new_name}"', 'curve': curve_data})
+
+    except Exception as e:
+        return jsonify({'error': f'重命名曲线时发生错误: {str(e)}'}), 500
 
 
 if __name__ == '__main__':

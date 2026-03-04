@@ -569,6 +569,11 @@ body {
   cursor: pointer;
 }
 
+/* 本地保存曲线 radio 容器：内联 flex，与其他 radio 选项同行排列 */
+.saved-curve-radios {
+  display: contents;
+}
+
 /* ----------------------------------------
    数据输入区
    浅色背景区分输入区域与页面主体
@@ -1240,7 +1245,7 @@ body {
   flex-shrink: 0;
 }
 
-/* 加载曲线按钮 —— 继承 .btn 基础样式，仅覆盖差异部分 */
+/* 管理曲线按钮 —— 继承 .btn 基础样式，仅覆盖差异部分 */
 .btn-curve-load {
   display: inline-flex;
   align-items: center;
@@ -1284,7 +1289,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* 加载曲线对话框：宽度稍大以容纳列表 */
+/* 管理曲线对话框：宽度稍大以容纳列表 */
 .curve-load-dialog {
   max-width: 560px;
 }

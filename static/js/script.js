@@ -16,6 +16,9 @@ let retentionData = { type: 'manual', points: [], curveName: '' };
 let calculationResults = null;
 let dauChart = null;
 let financeChart = null;
+// 本地保存曲线缓存（用于 radio 选项渲染和数据查找）
+let _roiCurvesCache = [];
+let _retentionCurvesCache = [];
 
 // 监听所有表单控件的输入变化，统一标记「未保存」状态，
 // 使用事件代理减少绑定次数
@@ -188,11 +191,6 @@ async function initializeAndSaveProject(projectName) {
   if (roiExcelPreview) roiExcelPreview.innerHTML = '';
   const roiFileInput = $id('roiExcelFile');
   if (roiFileInput) roiFileInput.value = '';
-  // 隐藏曲线radio选项并重置标签
-  const roiCurveRadioLabel = $id('roiCurveRadioLabel');
-  if (roiCurveRadioLabel) roiCurveRadioLabel.style.display = 'none';
-  const roiCurveRadioText = $id('roiCurveRadioText');
-  if (roiCurveRadioText) roiCurveRadioText.textContent = 'ROI';
   const roiCurvePreview = $id('roiCurvePreview');
   if (roiCurvePreview) roiCurvePreview.innerHTML = '';
 
@@ -213,11 +211,6 @@ async function initializeAndSaveProject(projectName) {
   if (retentionExcelPreview) retentionExcelPreview.innerHTML = '';
   const retentionFileInput = $id('retentionExcelFile');
   if (retentionFileInput) retentionFileInput.value = '';
-  // 隐藏曲线radio选项并重置标签
-  const retentionCurveRadioLabel = $id('retentionCurveRadioLabel');
-  if (retentionCurveRadioLabel) retentionCurveRadioLabel.style.display = 'none';
-  const retentionCurveRadioText = $id('retentionCurveRadioText');
-  if (retentionCurveRadioText) retentionCurveRadioText.textContent = '留存率';
   const retentionCurvePreview = $id('retentionCurvePreview');
   if (retentionCurvePreview) retentionCurvePreview.innerHTML = '';
 
@@ -240,6 +233,9 @@ async function initializeAndSaveProject(projectName) {
   if (exportCsvBtn) exportCsvBtn.disabled = true;
 
   addInvestmentPeriod(null, null, true);
+
+  // 加载本地保存的曲线，渲染 radio 选项
+  await refreshSavedCurveRadios();
 
   await saveProject();
   markSaved();
@@ -399,21 +395,41 @@ async function loadProject(projectName) {
       await addInvestmentPeriod(null, null, true);
     }
 
+    // 先加载本地曲线列表，渲染 radio 选项（加载项目前需要先有 radio 选项）
+    const [roiCurves, retentionCurves] = await Promise.all([
+      loadCurvesByType('roi'),
+      loadCurvesByType('retention'),
+    ]);
+    _roiCurvesCache = roiCurves;
+    _retentionCurvesCache = retentionCurves;
+
+    // 确定选中的曲线ID（用于渲染 radio 时预先选中）
+    const savedRoiType = projectData.roi_data ? (projectData.roi_data.type || 'manual') : 'manual';
+    const savedRetentionType = projectData.retention_data ? (projectData.retention_data.type || 'manual') : 'manual';
+    const roiSelectedId = savedRoiType.startsWith('curve_') ? savedRoiType.slice(6) : '';
+    const retentionSelectedId = savedRetentionType.startsWith('curve_') ? savedRetentionType.slice(6) : '';
+    renderSavedCurveRadios('roi', roiCurves, roiSelectedId);
+    renderSavedCurveRadios('retention', retentionCurves, retentionSelectedId);
+
     // ROI 数据
     if (projectData.roi_data) {
       const roiType = projectData.roi_data.type || 'manual';
-      if (roiType === 'curve') {
-        // 曲线模式：需先显示曲线 radio 选项并设置标签
-        const curveName = projectData.roi_data.curveName || 'ROI';
-        const roiCurveRadioLabel = $id('roiCurveRadioLabel');
-        const roiCurveRadioText = $id('roiCurveRadioText');
-        if (roiCurveRadioLabel) roiCurveRadioLabel.style.display = '';
-        if (roiCurveRadioText) roiCurveRadioText.textContent = `${curveName}`;
-        const roiRadio = $qs('input[name="roiInputType"][value="curve"]');
-        if (roiRadio) roiRadio.checked = true;
-        toggleRoiInput('curve');
+      const isCurveType = roiType.startsWith('curve_') || roiType === 'curve';
+      if (isCurveType) {
+        // 曲线模式：恢复数据点和预览
         roiData.points = projectData.roi_data.points || [];
-        roiData.curveName = curveName;
+        roiData.curveName = projectData.roi_data.curveName || '';
+        roiData.type = roiType;
+        // 切换显示区域
+        const manual = $id('roiManualInput');
+        const excel = $id('roiExcelInput');
+        const curveArea = $id('roiCurveInput');
+        if (manual) manual.style.display = 'none';
+        if (excel) excel.style.display = 'none';
+        if (curveArea) curveArea.style.display = '';
+        // 选中对应 radio
+        const roiRadio = $qs(`input[name="roiInputType"][value="${roiType}"]`);
+        if (roiRadio) roiRadio.checked = true;
         const previewData = roiData.points.slice(0, 30);
         displayExcelPreview('roiCurvePreview', previewData, 'ROI (%)', roiData.points.length);
         const manualBody = $id('roiManualBody');
@@ -452,18 +468,22 @@ async function loadProject(projectName) {
     // retention 数据
     if (projectData.retention_data) {
       const retentionType = projectData.retention_data.type || 'manual';
-      if (retentionType === 'curve') {
-        // 曲线模式：需先显示曲线 radio 选项并设置标签
-        const curveName = projectData.retention_data.curveName || '留存率';
-        const retentionCurveRadioLabel = $id('retentionCurveRadioLabel');
-        const retentionCurveRadioText = $id('retentionCurveRadioText');
-        if (retentionCurveRadioLabel) retentionCurveRadioLabel.style.display = '';
-        if (retentionCurveRadioText) retentionCurveRadioText.textContent = `${curveName}`;
-        const retentionRadio = $qs('input[name="retentionInputType"][value="curve"]');
-        if (retentionRadio) retentionRadio.checked = true;
-        toggleRetentionInput('curve');
+      const isCurveType = retentionType.startsWith('curve_') || retentionType === 'curve';
+      if (isCurveType) {
+        // 曲线模式：恢复数据点和预览
         retentionData.points = projectData.retention_data.points || [];
-        retentionData.curveName = curveName;
+        retentionData.curveName = projectData.retention_data.curveName || '';
+        retentionData.type = retentionType;
+        // 切换显示区域
+        const manual = $id('retentionManualInput');
+        const excel = $id('retentionExcelInput');
+        const curveArea = $id('retentionCurveInput');
+        if (manual) manual.style.display = 'none';
+        if (excel) excel.style.display = 'none';
+        if (curveArea) curveArea.style.display = '';
+        // 选中对应 radio
+        const retentionRadio = $qs(`input[name="retentionInputType"][value="${retentionType}"]`);
+        if (retentionRadio) retentionRadio.checked = true;
         const previewData = retentionData.points.slice(0, 30);
         displayExcelPreview('retentionCurvePreview', previewData, '留存率 (%)', retentionData.points.length);
         const manualBody = $id('retentionManualBody');
@@ -792,14 +812,21 @@ function toggleCostType(periodIdOrElement, type) {
 // ========================================
 // ROI 管理
 // ========================================
-function toggleRoiInput(type) {
+async function toggleRoiInput(type) {
   const manual = $id('roiManualInput');
   const excel = $id('roiExcelInput');
   const curve = $id('roiCurveInput');
+  // type 可能是 'manual'、'excel' 或 'curve_<id>'（本地保存曲线）
+  const isCurve = type !== 'manual' && type !== 'excel';
   if (manual) manual.style.display = type === 'manual' ? '' : 'none';
   if (excel) excel.style.display = type === 'excel' ? '' : 'none';
-  if (curve) curve.style.display = type === 'curve' ? '' : 'none';
+  if (curve) curve.style.display = isCurve ? '' : 'none';
   roiData.type = type;
+  // 若切换到本地曲线，加载对应曲线数据并渲染预览
+  if (isCurve) {
+    const curveId = type.startsWith('curve_') ? type.slice(6) : type;
+    await _applySavedCurveById('roi', curveId);
+  }
   markUnsaved();
 }
 
@@ -893,14 +920,21 @@ function handleRoiExcel(event) {
 // ========================================
 // 留存率 管理
 // ========================================
-function toggleRetentionInput(type) {
+async function toggleRetentionInput(type) {
   const manual = $id('retentionManualInput');
   const excel = $id('retentionExcelInput');
   const curve = $id('retentionCurveInput');
+  // type 可能是 'manual'、'excel' 或 'curve_<id>'（本地保存曲线）
+  const isCurve = type !== 'manual' && type !== 'excel';
   if (manual) manual.style.display = type === 'manual' ? '' : 'none';
   if (excel) excel.style.display = type === 'excel' ? '' : 'none';
-  if (curve) curve.style.display = type === 'curve' ? '' : 'none';
+  if (curve) curve.style.display = isCurve ? '' : 'none';
   retentionData.type = type;
+  // 若切换到本地曲线，加载对应曲线数据并渲染预览
+  if (isCurve) {
+    const curveId = type.startsWith('curve_') ? type.slice(6) : type;
+    await _applySavedCurveById('retention', curveId);
+  }
   markUnsaved();
 }
 
@@ -1027,12 +1061,13 @@ function collectGlobalDataByType(type, stateRef) {
   const radioName = isRoi ? 'roiInputType' : 'retentionInputType';
   const inputTypeEl = document.querySelector(`input[name="${radioName}"]:checked`);
   const inputType = inputTypeEl ? inputTypeEl.value : (stateRef?.type || 'manual');
+  const isCurveType = inputType !== 'manual' && inputType !== 'excel';
   const points = inputType === 'manual'
     ? collectManualDataPoints(type)
     : ((stateRef && stateRef.points) ? stateRef.points : []);
   const result = { type: inputType, points };
   // 若为曲线模式，保存曲线名称以便项目加载时恢复
-  if (inputType === 'curve' && stateRef && stateRef.curveName) {
+  if (isCurveType && stateRef && stateRef.curveName) {
     result.curveName = stateRef.curveName;
   }
   return result;
@@ -1675,7 +1710,95 @@ async function loadAllCurves() {
   }
 }
 
-/** 从服务端读取指定类型的曲线 */
+/**
+ * 根据曲线ID从缓存中查找并应用曲线数据到预览区（不切换radio）
+ * @param {'roi'|'retention'} type
+ * @param {string} curveId
+ */
+async function _applySavedCurveById(type, curveId) {
+  if (!curveId) return;
+  // 若缓存为空，先从服务端加载
+  let cache = type === 'roi' ? _roiCurvesCache : _retentionCurvesCache;
+  if (!cache || cache.length === 0) {
+    const curves = await loadCurvesByType(type);
+    if (type === 'roi') { _roiCurvesCache = curves; }
+    else { _retentionCurvesCache = curves; }
+    cache = curves;
+  }
+  const curve = cache.find(c => c.id === curveId);
+  if (!curve) {
+    // 曲线不存在（可能已被删除），清空预览区
+    if (type === 'roi') {
+      roiData.points = [];
+      roiData.curveName = '';
+      const preview = $id('roiCurvePreview');
+      if (preview) preview.innerHTML = '<p class="excel-preview-empty">曲线数据不存在，请重新选择</p>';
+    } else {
+      retentionData.points = [];
+      retentionData.curveName = '';
+      const preview = $id('retentionCurvePreview');
+      if (preview) preview.innerHTML = '<p class="excel-preview-empty">曲线数据不存在，请重新选择</p>';
+    }
+    return;
+  }
+  if (type === 'roi') {
+    roiData.points = curve.points.map(p => ({ day: p.day, value: p.value }));
+    roiData.curveName = curve.name;
+    const previewData = roiData.points.slice(0, 30);
+    displayExcelPreview('roiCurvePreview', previewData, 'ROI (%)', roiData.points.length);
+  } else {
+    retentionData.points = curve.points.map(p => ({ day: p.day, value: p.value }));
+    retentionData.curveName = curve.name;
+    const previewData = retentionData.points.slice(0, 30);
+    displayExcelPreview('retentionCurvePreview', previewData, '留存率 (%)', retentionData.points.length);
+  }
+}
+
+/**
+ * 渲染本地保存曲线的 radio 选项到指定容器
+ * @param {'roi'|'retention'} type
+ * @param {Array} curves - 曲线数据列表
+ * @param {string} [selectedId] - 当前选中的曲线ID（可选）
+ */
+function renderSavedCurveRadios(type, curves, selectedId) {
+  const containerId = type === 'roi' ? 'roiSavedCurveRadios' : 'retentionSavedCurveRadios';
+  const radioName = type === 'roi' ? 'roiInputType' : 'retentionInputType';
+  const toggleFn = type === 'roi' ? 'toggleRoiInput' : 'toggleRetentionInput';
+  const container = $id(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  if (!curves || curves.length === 0) return;
+  curves.forEach(curve => {
+    const value = `curve_${curve.id}`;
+    const isChecked = selectedId === curve.id;
+    const label = document.createElement('label');
+    label.className = 'radio-label';
+    label.innerHTML = `
+      <input type="radio" name="${radioName}" value="${value}"
+             ${isChecked ? 'checked' : ''}
+             onchange="${toggleFn}('${value}')" />
+      ${curve.name}
+    `;
+    container.appendChild(label);
+  });
+}
+
+/**
+ * 从服务端加载曲线列表并刷新 radio 选项
+ * @param {string} [selectedRoiId] - 当前选中的ROI曲线ID
+ * @param {string} [selectedRetentionId] - 当前选中的留存率曲线ID
+ */
+async function refreshSavedCurveRadios(selectedRoiId, selectedRetentionId) {
+  const [roiCurves, retentionCurves] = await Promise.all([
+    loadCurvesByType('roi'),
+    loadCurvesByType('retention'),
+  ]);
+  _roiCurvesCache = roiCurves;
+  _retentionCurvesCache = retentionCurves;
+  renderSavedCurveRadios('roi', roiCurves, selectedRoiId);
+  renderSavedCurveRadios('retention', retentionCurves, selectedRetentionId);
+}
+
 async function loadCurvesByType(type) {
   try {
     const response = await fetch(`/list_curves?type=${encodeURIComponent(type)}`);
@@ -1707,13 +1830,13 @@ let _pendingCurveType = 'roi';
 let _loadingCurveType = 'roi';
 // 全量曲线缓存（对话框打开时刷新）
 let _curveListCache = [];
-
 /** 收集当前指定类型的数据点 */
 function collectCurvePoints(type) {
   if (type === 'roi') {
     const inputType = $qs('input[name="roiInputType"]:checked');
     const mode = inputType ? inputType.value : 'manual';
-    if (mode === 'excel') {
+    // excel 或 curve_<id> 模式：直接返回已加载的数据点
+    if (mode !== 'manual') {
       return roiData.points.slice();
     }
     const points = [];
@@ -1729,7 +1852,8 @@ function collectCurvePoints(type) {
   } else {
     const inputType = $qs('input[name="retentionInputType"]:checked');
     const mode = inputType ? inputType.value : 'manual';
-    if (mode === 'excel') {
+    // excel 或 curve_<id> 模式：直接返回已加载的数据点
+    if (mode !== 'manual') {
       return retentionData.points.slice();
     }
     const points = [];
@@ -1842,7 +1966,7 @@ async function confirmCurveSave() {
   }
 }
 
-/** 打开加载曲线对话框 */
+/** 打开管理曲线对话框 */
 async function showCurveLoadDialog(type) {
   _loadingCurveType = type;
   const searchInput = $id('curveSearchInput');
@@ -1851,7 +1975,7 @@ async function showCurveLoadDialog(type) {
   const dialog = $id('curveLoadDialog');
   if (dialog) {
     const title = $id('curveLoadDialogTitle');
-    if (title) title.textContent = `加载${type === 'roi' ? 'ROI' : '留存率'}数据曲线`;
+    if (title) title.textContent = `管理${type === 'roi' ? 'ROI' : '留存率'}数据曲线`;
     dialog.style.display = 'flex';
     dialog.setAttribute('aria-hidden', 'false');
   }
@@ -1861,7 +1985,7 @@ async function showCurveLoadDialog(type) {
   renderCurveList(_curveListCache);
 }
 
-/** 关闭加载曲线对话框 */
+/** 关闭管理曲线对话框 */
 function closeCurveLoadDialog() {
   const dialog = $id('curveLoadDialog');
   if (dialog) {
@@ -1894,16 +2018,16 @@ function renderCurveList(curves) {
         <span class="project-time curve-points">${curve.points.length} 个数据点 · ${updatedTime}</span>
       </div>
       <div class="project-actions">
-        <button class="btn-load-curve">加载</button>
+        <button class="btn-load-curve">重命名</button>
         <button class="btn-delete-curve">删除</button>
       </div>
     `;
 
-    const loadBtn = li.querySelector('.btn-load-curve');
-    if (loadBtn) {
-      loadBtn.addEventListener('click', (e) => {
+    const renameBtn = li.querySelector('.btn-load-curve');
+    if (renameBtn) {
+      renameBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        applyCurveData(curve);
+        renameCurve(curve.id, curve.name, curve.type);
       });
     }
 
@@ -1915,8 +2039,6 @@ function renderCurveList(curves) {
       });
     }
 
-    // 点击整行也触发加载
-    li.addEventListener('click', () => applyCurveData(curve));
     list.appendChild(li);
   });
 }
@@ -1934,38 +2056,79 @@ function filterCurveList() {
 
 /** 将曲线数据应用到对应输入区 */
 function applyCurveData(curve) {
+  const radioValue = `curve_${curve.id}`;
   if (curve.type === 'roi') {
-    // 显示曲线 radio 选项并更新标签文字
-    const radioLabel = $id('roiCurveRadioLabel');
-    const radioText = $id('roiCurveRadioText');
-    if (radioLabel) radioLabel.style.display = '';
-    if (radioText) radioText.textContent = `${curve.name}`;
-    // 切换到曲线模式
-    const radio = $qs('input[name="roiInputType"][value="curve"]');
-    if (radio) { radio.checked = true; toggleRoiInput('curve'); }
+    // 更新缓存中的曲线数据（确保最新）
+    const idx = _roiCurvesCache.findIndex(c => c.id === curve.id);
+    if (idx >= 0) _roiCurvesCache[idx] = curve;
+    // 选中对应的 radio
+    const radio = $qs(`input[name="roiInputType"][value="${radioValue}"]`);
+    if (radio) { radio.checked = true; }
     // 写入数据点和曲线名称
     roiData.points = curve.points.map(p => ({ day: p.day, value: p.value }));
     roiData.curveName = curve.name;
+    roiData.type = radioValue;
+    // 显示曲线预览区，隐藏其他区域
+    const manual = $id('roiManualInput');
+    const excel = $id('roiExcelInput');
+    const curveArea = $id('roiCurveInput');
+    if (manual) manual.style.display = 'none';
+    if (excel) excel.style.display = 'none';
+    if (curveArea) curveArea.style.display = '';
     // 渲染曲线预览：前30条，格式与 Excel 导入一致
     const previewData = roiData.points.slice(0, 30);
     displayExcelPreview('roiCurvePreview', previewData, 'ROI (%)', roiData.points.length);
   } else {
-    // 显示曲线 radio 选项并更新标签文字
-    const radioLabel = $id('retentionCurveRadioLabel');
-    const radioText = $id('retentionCurveRadioText');
-    if (radioLabel) radioLabel.style.display = '';
-    if (radioText) radioText.textContent = `${curve.name}`;
-    // 切换到曲线模式
-    const radio = $qs('input[name="retentionInputType"][value="curve"]');
-    if (radio) { radio.checked = true; toggleRetentionInput('curve'); }
+    // 更新缓存中的曲线数据（确保最新）
+    const idx = _retentionCurvesCache.findIndex(c => c.id === curve.id);
+    if (idx >= 0) _retentionCurvesCache[idx] = curve;
+    // 选中对应的 radio
+    const radio = $qs(`input[name="retentionInputType"][value="${radioValue}"]`);
+    if (radio) { radio.checked = true; }
     retentionData.points = curve.points.map(p => ({ day: p.day, value: p.value }));
     retentionData.curveName = curve.name;
+    retentionData.type = radioValue;
+    // 显示曲线预览区，隐藏其他区域
+    const manual = $id('retentionManualInput');
+    const excel = $id('retentionExcelInput');
+    const curveArea = $id('retentionCurveInput');
+    if (manual) manual.style.display = 'none';
+    if (excel) excel.style.display = 'none';
+    if (curveArea) curveArea.style.display = '';
     const previewData = retentionData.points.slice(0, 30);
     displayExcelPreview('retentionCurvePreview', previewData, '留存率 (%)', retentionData.points.length);
   }
   markUnsaved();
   closeCurveLoadDialog();
   showToast(`已加载曲线「${curve.name}」（${curve.points.length} 个数据点）`);
+}
+
+/** 重命名指定曲线 */
+async function renameCurve(id, name, type) {
+  const newName = prompt(`请输入曲线「${name}」的新名称：`, name);
+  if (newName === null) return; // 用户取消
+  const trimmed = newName.trim();
+  if (!trimmed) { alert('名称不能为空'); return; }
+  if (trimmed === name) return; // 名称未变化
+  try {
+    const response = await fetch('/rename_curve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, name: trimmed, type: type || _loadingCurveType }),
+    });
+    const result = await response.json();
+    if (!result?.success) throw new Error(result?.error || '重命名失败');
+    // 刷新缓存和列表
+    _curveListCache = await loadCurvesByType(_loadingCurveType);
+    const keyword = ($id('curveSearchInput')?.value || '').trim().toLowerCase();
+    const filtered = keyword ? _curveListCache.filter(c => c.name.toLowerCase().includes(keyword)) : _curveListCache;
+    renderCurveList(filtered);
+    showToast(`曲线已重命名为「${trimmed}」`);
+    // 刷新所有时间段的曲线选择器
+    await updateAllPeriodCurveSelectors();
+  } catch (e) {
+    alert('重命名失败：' + getErrorMessage(e));
+  }
 }
 
 /** 删除指定曲线 */
@@ -2001,6 +2164,20 @@ async function updateAllPeriodCurveSelectors() {
     loadCurvesByType('roi'),
     loadCurvesByType('retention'),
   ]);
+
+  // 更新全局曲线缓存
+  _roiCurvesCache = roiCurves;
+  _retentionCurvesCache = retentionCurves;
+
+  // 获取当前选中的曲线ID，刷新后保持选中状态
+  const currentRoiType = roiData.type || '';
+  const currentRetentionType = retentionData.type || '';
+  const currentRoiId = currentRoiType.startsWith('curve_') ? currentRoiType.slice(6) : '';
+  const currentRetentionId = currentRetentionType.startsWith('curve_') ? currentRetentionType.slice(6) : '';
+
+  // 刷新全局曲线 radio 选项
+  renderSavedCurveRadios('roi', roiCurves, currentRoiId);
+  renderSavedCurveRadios('retention', retentionCurves, currentRetentionId);
 
   document.querySelectorAll('.period-card').forEach(card => {
     const roiSelect = $qs('.period-roi-curve', card);
