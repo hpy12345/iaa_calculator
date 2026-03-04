@@ -5,26 +5,50 @@
    便于后续扩展深色模式或品牌换肤。
    ======================================== */
 
-/* 全局设计令牌：集中管理颜色、阴影、圆角等，避免散落的魔法值 */
+/* ----------------------------------------
+   全局设计令牌
+   集中管理颜色、阴影、圆角等，避免散落的魔法值
+   ---------------------------------------- */
 :root {
+  /* 主题色 */
   --primary-color: #4a90d9;
   --primary-hover: #357abd;
   --secondary-color: #6c757d;
+  --secondary-hover: #5a6268;
   --success-color: #28a745;
+  --success-hover: #218838;
   --danger-color: #dc3545;
+  --danger-hover: #c82333;
   --warning-color: #ffc107;
+  --warning-hover: #e0a800;
   --info-color: #17a2b8;
+  --info-hover: #138496;
   --light-color: #f8f9fa;
   --dark-color: #343a40;
+
+  /* 边框与阴影 */
   --border-color: #dee2e6;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  /* 圆角 */
   --radius: 8px;
   --radius-sm: 4px;
+
+  /* 过渡 */
   --transition: all 0.3s ease;
+
+  /* 焦点光晕（统一 focus ring 颜色） */
+  --focus-ring: 0 0 0 3px rgba(74, 144, 217, 0.1);
+
+  /* 品牌渐变 */
+  --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* 重置浏览器默认样式，确保跨浏览器一致表现 */
+/* ----------------------------------------
+   重置
+   消除浏览器默认样式，确保跨浏览器一致表现
+   ---------------------------------------- */
 * {
   margin: 0;
   padding: 0;
@@ -37,16 +61,22 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   color: #333;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-brand);
 }
 
+/* ----------------------------------------
+   布局
+   ---------------------------------------- */
 .container {
-  max-width: 1400px;
+  max-width: 2000px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 60px;
 }
 
-/* 页面顶部：白色文字配合渐变背景形成视觉层次 */
+/* ----------------------------------------
+   页头
+   白色文字配合渐变背景形成视觉层次
+   ---------------------------------------- */
 .header {
   margin-bottom: 30px;
   padding: 40px 20px;
@@ -66,7 +96,10 @@ body {
   opacity: 0.9;
 }
 
-/* 内容区块：白色卡片在渐变背景上形成浮层效果 */
+/* ----------------------------------------
+   内容区块
+   白色卡片在渐变背景上形成浮层效果
+   ---------------------------------------- */
 .section {
   margin-bottom: 25px;
   padding: 25px;
@@ -110,7 +143,31 @@ body {
   border-radius: 2px;
 }
 
-/* 项目管理区：flex 布局保证按钮与输入框在同一行对齐 */
+/* ----------------------------------------
+   区块标题行（标题 + 操作按钮横向排列）
+   ---------------------------------------- */
+.section-header,
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h3,
+.subsection-header h3 {
+  margin: 0;
+}
+
+.section-header .header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* ----------------------------------------
+   项目管理区
+   flex 布局保证按钮与输入框在同一行对齐
+   ---------------------------------------- */
 .project-controls {
   display: flex;
   flex-wrap: wrap;
@@ -128,7 +185,9 @@ body {
   gap: 10px;
 }
 
-/* 表单输入组件 */
+/* ----------------------------------------
+   表单输入组件
+   ---------------------------------------- */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -150,18 +209,28 @@ body {
   transition: var(--transition);
 }
 
-/* 聚焦时用浅色投影替代默认 outline，视觉更柔和 */
+/* ----------------------------------------
+   统一 focus 样式
+   聚焦时用浅色投影替代默认 outline，视觉更柔和
+   ---------------------------------------- */
 .input-group input:focus,
-.input-group select:focus {
+.input-group select:focus,
+.cost-inputs-inline input:focus,
+.curve-search-bar input:focus,
+.period-curve-select-group select:focus,
+.dialog-body .input-group input[type="text"]:focus,
+.data-table td input:focus {
   border-color: var(--primary-color);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+  box-shadow: var(--focus-ring);
 }
 
 /* ----------------------------------------
    按钮系统
    使用 BEM 式变体命名，便于组合和覆盖
    ---------------------------------------- */
+
+/* 基础按钮 */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -180,6 +249,13 @@ body {
   font-size: 1.1rem;
 }
 
+/* 小尺寸按钮公共基类 */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+/* 颜色变体 */
 .btn-primary {
   color: white;
   background: var(--primary-color);
@@ -196,7 +272,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
+  background: var(--secondary-hover);
 }
 
 .btn-add {
@@ -206,7 +282,7 @@ body {
 }
 
 .btn-add:hover {
-  background: #218838;
+  background: var(--success-hover);
 }
 
 /* 虚线边框传达"可添加"的视觉暗示 */
@@ -224,14 +300,12 @@ body {
 }
 
 .btn-remove {
-  padding: 6px 12px;
-  font-size: 0.85rem;
   color: white;
   background: var(--danger-color);
 }
 
 .btn-remove:hover {
-  background: #c82333;
+  background: var(--danger-hover);
 }
 
 /* 计算按钮使用渐变背景突出主操作 */
@@ -239,7 +313,7 @@ body {
   padding: 15px 40px;
   font-size: 1.2rem;
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-brand);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -263,21 +337,56 @@ body {
 }
 
 .btn-export:not(:disabled):hover {
-  background: #138496;
+  background: var(--info-hover);
 }
 
 .btn-download-chart {
-  padding: 6px 12px;
-  font-size: 0.85rem;
   color: white;
   background: var(--secondary-color);
 }
 
 .btn-download-chart:hover {
-  background: #5a6268;
+  background: var(--secondary-hover);
 }
 
-/* 时间段卡片：纵向排列便于阅读多段投入配置 */
+.btn-insert {
+  color: white;
+  background: var(--info-color);
+}
+
+.btn-insert:hover {
+  background: var(--info-hover);
+  transform: translateY(-1px);
+}
+
+.btn-warning {
+  color: var(--dark-color);
+  background: var(--warning-color);
+}
+
+.btn-warning:hover {
+  background: var(--warning-hover);
+}
+
+/* 关闭按钮 */
+.btn-close {
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--secondary-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-close:hover {
+  color: var(--danger-color);
+}
+
+/* ----------------------------------------
+   时间段卡片
+   纵向排列便于阅读多段投入配置
+   ---------------------------------------- */
 .periods-container {
   display: flex;
   flex-direction: column;
@@ -307,62 +416,128 @@ body {
 .period-card .period-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.btn-insert {
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  color: white;
-  background: var(--info-color);
+/* 缩小 period-header-actions 中的按钮尺寸 */
+.period-card .period-header-actions .btn {
+  padding: 6px 10px;
+  font-size: 0.82rem;
 }
 
-.btn-insert:hover {
-  background: #138496;
-  transform: translateY(-1px);
+/* 按钮组在 period-grid 末尾，不压缩，与输入框同一水平 */
+.period-card .period-grid .period-header-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-right: 12px;
+  align-self: center;
+  padding-top: 22px;
 }
 
+/* 时间段卡片主布局：flex 单行，起始/结束时间与参数组并排 */
 .period-card .period-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
   gap: 15px;
 }
 
-/* 日消耗内联样式：跨两列以容纳 radio + 输入框的水平布局 */
+/* 起始/结束时间固定宽度 */
+.period-card .period-grid .input-group:has(.period-start),
+.period-card .period-grid .input-group:has(.period-end) {
+  flex: 0 0 150px;
+}
+
+/* 五个参数输入框包裹容器：间距与起始/结束时间保持一致 */
+.period-params-group {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 15px;
+}
+
+/* DNU、团队规模：限制宽度 */
+.period-params-group .input-group:has(.period-dnu),
+.period-params-group .input-group:has(.period-team-size) {
+  flex: 0 0 100px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.period-params-group .input-group:has(.period-dnu) input,
+.period-params-group .input-group:has(.period-team-size) input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 4px;
+  text-align: center;
+}
+
+/* 用工成本、其他运营成本：限制宽度 */
+.period-params-group .input-group:has(.period-labor-cost),
+.period-params-group .input-group:has(.period-other-cost) {
+  flex: 0 0 200px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.period-params-group .input-group:has(.period-labor-cost) input,
+.period-params-group .input-group:has(.period-other-cost) input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 6px;
+}
+
+/* 日消耗内联样式：占据剩余空间 */
 .cost-type-inline {
-  grid-column: span 2;
+  flex: 1 1 auto;
+  min-width: 280px;
 }
 
 .cost-type-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .radio-group-inline {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .cost-inputs-inline {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.cost-inputs-inline input {
-  width: 140px;
-  padding: 10px 14px;
+/* 固定值模式：单个输入框 */
+.cost-inputs-inline input.cost-fixed-inline {
+  width: 100px;
+  padding: 10px 8px;
   font-size: 1rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
 }
 
-.cost-inputs-inline input:focus {
-  border-color: var(--primary-color);
-  outline: none;
+/* 线性变化模式：两个输入框，各自缩小以保持总宽度不变 */
+.cost-inputs-inline input.cost-linear-inline {
+  width: 80px;
+  padding: 10px 6px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.cost-inputs-inline input {
+  padding: 10px 8px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
 }
 
 .cost-type-group .radio-group {
@@ -375,7 +550,9 @@ body {
   gap: 15px;
 }
 
-/* Radio 按钮组 */
+/* ----------------------------------------
+   Radio 按钮组
+   ---------------------------------------- */
 .radio-group {
   display: flex;
   gap: 20px;
@@ -396,7 +573,10 @@ body {
   cursor: pointer;
 }
 
-/* 数据输入区：浅色背景区分输入区域与页面主体 */
+/* ----------------------------------------
+   数据输入区
+   浅色背景区分输入区域与页面主体
+   ---------------------------------------- */
 .data-input-section {
   padding: 20px;
   background: var(--light-color);
@@ -409,7 +589,9 @@ body {
   margin-top: 15px;
 }
 
-/* 数据表格 */
+/* ----------------------------------------
+   数据表格
+   ---------------------------------------- */
 .data-table {
   width: 100%;
   background: white;
@@ -439,12 +621,10 @@ body {
   border-radius: var(--radius-sm);
 }
 
-.data-table td input:focus {
-  border-color: var(--primary-color);
-  outline: none;
-}
-
-/* 文件上传 */
+/* ----------------------------------------
+   文件上传
+   隐藏原生文件输入，用自定义 label 代替以保持视觉一致
+   ---------------------------------------- */
 .file-upload-row {
   display: flex;
   flex-wrap: wrap;
@@ -453,12 +633,8 @@ body {
   margin-bottom: 15px;
 }
 
+/* file-upload 默认无外边距；独立使用时由外层容器控制间距 */
 .file-upload {
-  margin-bottom: 15px;
-}
-
-/* 当 file-upload 位于 row 内时取消自身底部间距，由父级统一管理 */
-.file-upload-row .file-upload {
   margin-bottom: 0;
 }
 
@@ -469,7 +645,6 @@ body {
   color: var(--secondary-color);
 }
 
-/* 隐藏原生文件输入，用自定义 label 代替以保持视觉一致 */
 .file-upload input[type="file"] {
   display: none;
 }
@@ -515,14 +690,19 @@ body {
   background: var(--light-color);
 }
 
-/* 设置网格 */
+/* ----------------------------------------
+   设置网格
+   ---------------------------------------- */
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
 }
 
-/* 操作按钮区：透明背景避免与卡片样式冲突 */
+/* ----------------------------------------
+   操作按钮区
+   透明背景避免与卡片样式冲突
+   ---------------------------------------- */
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -533,7 +713,10 @@ body {
   box-shadow: none;
 }
 
-/* 全屏遮罩 + 居中旋转动画，阻止用户在计算期间操作 */
+/* ----------------------------------------
+   加载遮罩
+   全屏遮罩 + 居中旋转动画，阻止用户在计算期间操作
+   ---------------------------------------- */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -568,7 +751,10 @@ body {
   }
 }
 
-/* 结果区域入场动画，给用户"内容已更新"的反馈 */
+/* ----------------------------------------
+   结果区域
+   入场动画给用户"内容已更新"的反馈
+   ---------------------------------------- */
 .results {
   animation: fade-in 0.5s ease;
 }
@@ -584,7 +770,10 @@ body {
   }
 }
 
-/* 关键指标网格：auto-fit 自适应列数，兼容不同屏幕宽度 */
+/* ----------------------------------------
+   关键指标网格
+   auto-fit 自适应列数，兼容不同屏幕宽度
+   ---------------------------------------- */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -607,7 +796,7 @@ body {
 /* 高亮卡片使用主题渐变色突出关键数据 */
 .metric-card.highlight {
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-brand);
 }
 
 .metric-card.highlight .metric-label,
@@ -637,7 +826,10 @@ body {
   color: var(--secondary-color);
 }
 
-/* 图表区：双栏自适应布局，窄屏自动变单栏 */
+/* ----------------------------------------
+   图表区
+   双栏自适应布局，窄屏自动变单栏
+   ---------------------------------------- */
 .charts-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
@@ -662,24 +854,10 @@ body {
   color: var(--dark-color);
 }
 
-/* 区块标题与操作按钮横向排列，节省垂直空间 */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.section-header h3 {
-  margin: 0;
-}
-
-.section-header .header-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-/* 结果表格：横向滚动应对大量季度列 */
+/* ----------------------------------------
+   结果表格
+   横向滚动应对大量季度列
+   ---------------------------------------- */
 .table-container {
   overflow-x: auto;
   padding: 15px;
@@ -713,7 +891,7 @@ body {
 }
 
 .result-table tbody tr:nth-child(odd) {
-  background: #f8f9fa;
+  background: var(--light-color);
 }
 
 .result-table tbody tr:hover {
@@ -799,20 +977,6 @@ body {
   color: var(--dark-color);
 }
 
-.btn-close {
-  padding: 0;
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--secondary-color);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-close:hover {
-  color: var(--danger-color);
-}
-
 .dialog-body {
   max-height: 400px;
   padding: 20px;
@@ -820,8 +984,10 @@ body {
 }
 
 .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
   padding: 15px 20px;
-  text-align: right;
   border-top: 1px solid var(--border-color);
 }
 
@@ -850,13 +1016,10 @@ body {
   transition: var(--transition);
 }
 
-.dialog-body .input-group input[type="text"]:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-}
-
-/* 表单校验反馈：左侧红色竖线引导视线定位错误 */
+/* ----------------------------------------
+   表单校验反馈
+   左侧红色竖线引导视线定位错误
+   ---------------------------------------- */
 .error-message {
   margin-top: 8px;
   padding: 8px 12px;
@@ -873,6 +1036,9 @@ body {
   color: #666;
 }
 
+/* ----------------------------------------
+   项目列表
+   ---------------------------------------- */
 .project-list {
   list-style: none;
 }
@@ -925,10 +1091,12 @@ body {
 }
 
 .project-list li .btn-delete:hover {
-  background: #c82333;
+  background: var(--danger-hover);
 }
 
-/* 页脚 */
+/* ----------------------------------------
+   页脚
+   ---------------------------------------- */
 .footer {
   padding: 30px 20px;
   font-size: 0.9rem;
@@ -936,7 +1104,10 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* 数值正负色彩标记，帮助用户快速识别盈亏状态 */
+/* ----------------------------------------
+   数值正负色彩标记
+   帮助用户快速识别盈亏状态
+   ---------------------------------------- */
 .positive {
   color: var(--success-color);
 }
@@ -945,7 +1116,10 @@ body {
   color: var(--danger-color);
 }
 
-/* 纯 CSS 工具提示：轻量实现，无需额外 JS 库 */
+/* ----------------------------------------
+   纯 CSS 工具提示
+   轻量实现，无需额外 JS 库
+   ---------------------------------------- */
 [data-tooltip] {
   position: relative;
   cursor: help;
@@ -1030,24 +1204,17 @@ body {
   color: var(--secondary-color);
 }
 
-/* 返回首页按钮 */
-.btn-warning {
-  color: var(--dark-color);
-  background: var(--warning-color);
-}
-
-.btn-warning:hover {
-  background: #e0a800;
-}
-
-/* 保存状态提示：固定在右上角，胶囊形状便于识别 */
+/* ----------------------------------------
+   保存状态提示
+   固定在右上角，胶囊形状便于识别
+   ---------------------------------------- */
 .save-status {
   position: fixed;
   top: 12px;
   right: 20px;
   z-index: 1000;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   border-radius: 999px;
   transition: all 0.2s ease;
@@ -1065,8 +1232,155 @@ body {
 }
 
 /* ========================================
+   数据曲线管理
+   subsection 标题行 + 操作按钮横向排列
+   ======================================== */
+
+/* 曲线操作按钮组 */
+.curve-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 加载曲线按钮 —— 继承 .btn 基础样式，仅覆盖差异部分 */
+.btn-curve-load {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  background: var(--info-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-curve-load:hover {
+  background: var(--info-hover);
+  transform: translateY(-1px);
+}
+
+/* 保存曲线按钮 —— 继承 .btn 基础样式，仅覆盖差异部分 */
+.btn-curve-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  background: var(--success-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-curve-save:hover {
+  background: var(--success-hover);
+  transform: translateY(-1px);
+}
+
+/* 加载曲线对话框：宽度稍大以容纳列表 */
+.curve-load-dialog {
+  max-width: 560px;
+}
+
+/* 曲线搜索栏 */
+.curve-search-bar {
+  margin-bottom: 12px;
+}
+
+.curve-search-bar input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+/* 曲线列表：复用 project-list 基础样式，追加差异化样式 */
+.curve-list .curve-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.curve-list .curve-type-badge.roi {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.curve-list .curve-type-badge.retention {
+  color: #065f46;
+  background: #d1fae5;
+}
+
+.curve-list .curve-points {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* 曲线列表项操作按钮 */
+.curve-list .btn-load-curve {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: white;
+  background: var(--primary-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.curve-list .btn-load-curve:hover {
+  background: var(--primary-hover);
+}
+
+.curve-list .btn-delete-curve {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: white;
+  background: var(--danger-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.curve-list .btn-delete-curve:hover {
+  background: var(--danger-hover);
+}
+
+/* 时间段卡片中的曲线选择器 */
+.period-curve-select-group {
+  flex: 0 0 112px;
+  min-width: 0;
+}
+
+.period-curve-select-group select {
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+/* ========================================
    响应式设计
-   断点策略：768px (平板) / 480px (手机)
+   断点策略：768px（平板）/ 480px（手机）
    ======================================== */
 
 /* 平板及以下：简化多栏布局为单栏，确保可读性 */
@@ -1110,23 +1424,87 @@ body {
     max-width: 300px;
   }
 
+  /* 移动端：period-grid 和 period-params-group 允许换行 */
+  .period-card .period-grid {
+    flex-wrap: wrap;
+  }
+
+  .period-params-group {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
   .cost-type-inline {
-    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .cost-inputs-inline {
     flex-wrap: wrap;
   }
 
-  .cost-inputs-inline input {
+  .cost-inputs-inline input.cost-fixed-inline,
+  .cost-inputs-inline input.cost-linear-inline {
     width: 80px;
   }
+}
+
+/* ----------------------------------------
+   列表状态提示（加载中 / 空列表 / 错误）
+   由 JS 动态生成，样式统一在此管理
+   ---------------------------------------- */
+.list-status {
+  padding: 12px 16px;
+  text-align: center;
+  color: var(--secondary-color);
+  list-style: none;
+}
+
+.list-status.is-error {
+  color: var(--danger-color);
+}
+
+/* ----------------------------------------
+   Excel 预览区辅助文字
+   由 JS displayExcelPreview() 动态生成，样式统一在此管理
+   ---------------------------------------- */
+.excel-preview-note {
+  padding: 10px;
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+}
+
+.excel-preview-empty {
+  padding: 10px;
+  color: var(--secondary-color);
+}
+
+/* ========================================
+   Toast 轻提示
+   由 JS showToast() 动态创建，样式统一在此管理
+   ======================================== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  z-index: 9999;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 999px;
+  pointer-events: none;
+  transform: translateX(-50%);
+  transition: opacity 0.3s ease;
+}
+
+.toast.is-hidden {
+  opacity: 0;
 }
 
 /* 手机：进一步压缩间距，按钮改为全宽方便触控 */
 @media (max-width: 480px) {
   .container {
-    padding: 10px;
+    padding: 10px 20px;
   }
 
   .section {

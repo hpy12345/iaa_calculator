@@ -10,7 +10,7 @@
 </head>
 <body>
   <noscript>
-    <div style="background:#ffefef;padding:10px;border:1px solid #f5c2c2;text-align:center;">
+    <div class="noscript-warning">
       检测到浏览器未启用 JavaScript，部分功能可能无法使用。
     </div>
   </noscript>
@@ -28,12 +28,18 @@
       <div class="welcome-content">
         <p class="welcome-text">请新建项目或加载已有项目以开始测算</p>
         <div class="welcome-buttons">
-          <div class="welcome-card" onclick="createNewProject()" role="button" tabindex="0" aria-label="新建项目">
+          <div class="welcome-card"
+               onclick="createNewProject()"
+               onkeydown="if(event.key==='Enter'||event.key===' ')createNewProject()"
+               role="button" tabindex="0" aria-label="新建项目">
             <div class="welcome-icon">📝</div>
             <h3>新建项目</h3>
             <p>创建一个新的测算项目</p>
           </div>
-          <div class="welcome-card" onclick="showLoadDialog()" role="button" tabindex="0" aria-label="加载项目">
+          <div class="welcome-card"
+               onclick="showLoadDialog()"
+               onkeydown="if(event.key==='Enter'||event.key===' ')showLoadDialog()"
+               role="button" tabindex="0" aria-label="加载项目">
             <div class="welcome-icon">📂</div>
             <h3>加载项目</h3>
             <p>加载已保存的项目</p>
@@ -50,7 +56,8 @@
         <div class="project-controls">
           <div class="input-group">
             <label for="projectName">项目名称</label>
-            <input type="text" id="projectName" placeholder="输入项目名称" aria-label="项目名称" />
+            <input type="text" id="projectName" placeholder="输入项目名称"
+                   autocomplete="off" aria-label="项目名称" />
           </div>
           <div id="saveStatus" class="save-status is-saved" aria-live="polite">已保存</div>
           <div class="button-group">
@@ -71,20 +78,15 @@
       <section class="section parameters">
         <h2>参数输入</h2>
 
-        <!-- 资源投入时间段 -->
-        <div class="subsection">
-          <h3>资源投入（时间段）</h3>
-          <div id="investmentPeriods" class="periods-container">
-            <!-- 由 JS 动态添加时间段卡片 -->
-          </div>
-          <button type="button" class="btn btn-add" onclick="addInvestmentPeriod()" aria-label="添加时间段">
-            <span class="icon">+</span> 添加时间段
-          </button>
-        </div>
-
         <!-- ROI数据 - 支持手动输入和Excel导入两种模式 -->
         <div class="subsection">
-          <h3>ROI数据</h3>
+          <div class="subsection-header">
+            <h3>ROI数据</h3>
+            <div class="curve-actions">
+              <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('roi')" aria-label="加载ROI数据曲线">📂 加载曲线</button>
+              <button type="button" class="btn btn-curve-save" onclick="showCurveSaveDialog('roi')" aria-label="保存ROI数据曲线">💾 保存曲线</button>
+            </div>
+          </div>
           <div class="data-input-section">
             <div class="radio-group" role="radiogroup" aria-label="ROI 数据输入方式">
               <label class="radio-label">
@@ -133,7 +135,13 @@
 
         <!-- 留存率数据 - 与 ROI 数据同样支持两种输入模式 -->
         <div class="subsection">
-          <h3>留存率数据</h3>
+          <div class="subsection-header">
+            <h3>留存率数据</h3>
+            <div class="curve-actions">
+              <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('retention')" aria-label="加载留存率数据曲线">📂 加载曲线</button>
+              <button type="button" class="btn btn-curve-save" onclick="showCurveSaveDialog('retention')" aria-label="保存留存率数据曲线">💾 保存曲线</button>
+            </div>
+          </div>
           <div class="data-input-section">
             <div class="radio-group" role="radiogroup" aria-label="留存率 数据输入方式">
               <label class="radio-label">
@@ -180,17 +188,30 @@
           </div>
         </div>
 
+        <!-- 资源投入时间段 -->
+        <div class="subsection">
+          <h3>资源投入（时间段）</h3>
+          <div id="investmentPeriods" class="periods-container">
+            <!-- 由 JS 动态添加时间段卡片 -->
+          </div>
+          <button type="button" class="btn btn-add" onclick="addInvestmentPeriod()" aria-label="添加时间段">
+            <span class="icon">+</span> 添加时间段
+          </button>
+        </div>
+
         <!-- 其他设置 -->
         <div class="subsection">
           <h3>其他设置</h3>
           <div class="settings-grid">
             <div class="input-group">
               <label for="repaymentMonths">现金回款月数</label>
-              <input type="number" id="repaymentMonths" value="1" min="1" max="12" step="1" aria-label="现金回款月数" />
+              <input type="number" id="repaymentMonths" value="1" min="1" max="12" step="1"
+                     autocomplete="off" aria-label="现金回款月数" />
             </div>
             <div class="input-group">
               <label for="targetDau">目标DAU (万人)</label>
-              <input type="number" id="targetDau" value="500" min="1" step="1" aria-label="目标DAU" />
+              <input type="number" id="targetDau" value="500" min="1" step="1"
+                     autocomplete="off" aria-label="目标DAU" />
             </div>
           </div>
         </div>
@@ -205,6 +226,123 @@
           <span class="icon">📊</span> 导出每日数据
         </button>
       </section>
+
+      <!-- 结果展示区 -->
+      <section class="section results" id="resultsSection" style="display: none;">
+        <h2>计算结果</h2>
+
+        <!-- 关键指标 -->
+        <div class="subsection">
+          <h3>关键指标</h3>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">1个月回款最大现金需求</div>
+              <div class="metric-value" id="metricMaxCash1m">--</div>
+              <div class="metric-unit">万元</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">2个月回款最大现金需求</div>
+              <div class="metric-value" id="metricMaxCash2m">--</div>
+              <div class="metric-unit">万元</div>
+            </div>
+            <div class="metric-card" id="metricMaxCashNmCard" style="display: none;">
+              <div class="metric-label" id="metricMaxCashNmLabel">n个月回款最大现金需求</div>
+              <div class="metric-value" id="metricMaxCashNm">--</div>
+              <div class="metric-unit">万元</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">动态会计利润打正天数</div>
+              <div class="metric-value" id="metricDynamicBreakeven">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">累计会计利润打正天数</div>
+              <div class="metric-value" id="metricCumulativeBreakeven">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">1个月回款现金流打正天数</div>
+              <div class="metric-value" id="metricCashFlow1mBreakeven">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">2个月回款现金流打正天数</div>
+              <div class="metric-value" id="metricCashFlow2mBreakeven">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card" id="metricCashFlowNmBreakevenCard" style="display: none;">
+              <div class="metric-label" id="metricCashFlowNmBreakevenLabel">n个月回款现金流打正天数</div>
+              <div class="metric-value" id="metricCashFlowNmBreakeven">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">达到1000万DAU天数</div>
+              <div class="metric-value" id="metricDay10mDau">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">达到200万DAU天数</div>
+              <div class="metric-value" id="metricDay2mDau">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+            <div class="metric-card highlight">
+              <div class="metric-label">达到<span id="metricTargetDauValue">--</span>万DAU天数</div>
+              <div class="metric-value" id="metricDayTargetDau">--</div>
+              <div class="metric-unit">天</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 图表区 -->
+        <div class="subsection">
+          <h3>数据图表</h3>
+          <div class="charts-container">
+            <div class="chart-wrapper">
+              <div class="chart-header">
+                <h4>DAU季度趋势</h4>
+                <button type="button" class="btn btn-download-chart" onclick="downloadChart('dauChart', 'DAU季度趋势')" aria-label="下载 DAU 季度趋势 图表">
+                  <span class="icon">⬇️</span> 下载图表
+                </button>
+              </div>
+              <canvas id="dauChart" aria-label="DAU 季度趋势 图表"></canvas>
+            </div>
+            <div class="chart-wrapper">
+              <div class="chart-header">
+                <h4>收入成本季度分析</h4>
+                <button type="button" class="btn btn-download-chart" onclick="downloadChart('financeChart', '收入成本季度分析')" aria-label="下载 收入成本 季度分析 图表">
+                  <span class="icon">⬇️</span> 下载图表
+                </button>
+              </div>
+              <canvas id="financeChart" aria-label="收入成本季度分析 图表"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- 季度汇总表格 - 转置布局：季度在上行，指标在左列 -->
+        <div class="subsection">
+          <div class="section-header">
+            <h3>季度汇总数据</h3>
+            <div class="header-buttons">
+              <button type="button" class="btn btn-download-chart" onclick="downloadQuarterlyTable()" aria-label="下载季度表格 Excel">
+                <span class="icon">⬇️</span> 下载表格（Excel）
+              </button>
+              <button type="button" class="btn btn-download-chart" onclick="downloadQuarterlyTableAsImage()" aria-label="下载季度表格 图片">
+                <span class="icon">⬇️</span> 下载表格（图片）
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="result-table transposed-table" id="quarterlyTable">
+              <thead id="quarterlyTableHead">
+                <!-- 由 JS 动态填充季度标题行 -->
+              </thead>
+              <tbody id="quarterlyTableBody">
+                <!-- 由 JS 动态填充指标行 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- 加载动画 - 计算过程中覆盖全屏防止重复操作 -->
@@ -215,125 +353,10 @@
       </div>
     </div>
 
-    <!-- 结果展示区 -->
-    <section class="section results" id="resultsSection" style="display: none;">
-      <h2>计算结果</h2>
-
-      <!-- 关键指标 -->
-      <div class="subsection">
-        <h3>关键指标</h3>
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">1个月回款最大现金需求</div>
-            <div class="metric-value" id="metricMaxCash1m">--</div>
-            <div class="metric-unit">万元</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">2个月回款最大现金需求</div>
-            <div class="metric-value" id="metricMaxCash2m">--</div>
-            <div class="metric-unit">万元</div>
-          </div>
-          <div class="metric-card" id="metricMaxCashNmCard" style="display: none;">
-            <div class="metric-label" id="metricMaxCashNmLabel">n个月回款最大现金需求</div>
-            <div class="metric-value" id="metricMaxCashNm">--</div>
-            <div class="metric-unit">万元</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">动态会计利润打正天数</div>
-            <div class="metric-value" id="metricDynamicBreakeven">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">累计会计利润打正天数</div>
-            <div class="metric-value" id="metricCumulativeBreakeven">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">1个月回款现金流打正天数</div>
-            <div class="metric-value" id="metricCashFlow1mBreakeven">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">2个月回款现金流打正天数</div>
-            <div class="metric-value" id="metricCashFlow2mBreakeven">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card" id="metricCashFlowNmBreakevenCard" style="display: none;">
-            <div class="metric-label" id="metricCashFlowNmBreakevenLabel">n个月回款现金流打正天数</div>
-            <div class="metric-value" id="metricCashFlowNmBreakeven">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">达到1000万DAU天数</div>
-            <div class="metric-value" id="metricDay10mDau">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">达到200万DAU天数</div>
-            <div class="metric-value" id="metricDay2mDau">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-          <div class="metric-card highlight">
-            <div class="metric-label">达到<span id="metricTargetDauValue">--</span>万DAU天数</div>
-            <div class="metric-value" id="metricDayTargetDau">--</div>
-            <div class="metric-unit">天</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 图表区 -->
-      <div class="subsection">
-        <h3>数据图表</h3>
-        <div class="charts-container">
-          <div class="chart-wrapper">
-            <div class="chart-header">
-              <h4>DAU季度趋势</h4>
-              <button type="button" class="btn btn-download-chart" onclick="downloadChart('dauChart', 'DAU季度趋势')" aria-label="下载 DAU 季度趋势 图表">
-                <span class="icon">⬇️</span> 下载图表
-              </button>
-            </div>
-            <canvas id="dauChart" aria-label="DAU 季度趋势 图表"></canvas>
-          </div>
-          <div class="chart-wrapper">
-            <div class="chart-header">
-              <h4>收入成本季度分析</h4>
-              <button type="button" class="btn btn-download-chart" onclick="downloadChart('financeChart', '收入成本季度分析')" aria-label="下载 收入成本 季度分析 图表">
-                <span class="icon">⬇️</span> 下载图表
-              </button>
-            </div>
-            <canvas id="financeChart" aria-label="收入成本季度分析 图表"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- 季度汇总表格 - 转置布局：季度在上行，指标在左列 -->
-      <div class="subsection">
-        <div class="section-header">
-          <h3>季度汇总数据</h3>
-          <div class="header-buttons">
-            <button type="button" class="btn btn-download-chart" onclick="downloadQuarterlyTable()" aria-label="下载季度表格 Excel">
-              <span class="icon">⬇️</span> 下载表格（Excel）
-            </button>
-            <button type="button" class="btn btn-download-chart" onclick="downloadQuarterlyTableAsImage()" aria-label="下载季度表格 图片">
-              <span class="icon">⬇️</span> 下载表格（图片）
-            </button>
-          </div>
-        </div>
-        <div class="table-container">
-          <table class="result-table transposed-table" id="quarterlyTable">
-            <thead id="quarterlyTableHead">
-              <!-- 由 JS 动态填充季度标题行 -->
-            </thead>
-            <tbody id="quarterlyTableBody">
-              <!-- 由 JS 动态填充指标行 -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
     <!-- 加载项目对话框 -->
-    <div id="loadProjectDialog" class="dialog-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="loadProjectDialogTitle" aria-hidden="true" tabindex="-1">
+    <div id="loadProjectDialog" class="dialog-overlay" style="display: none;"
+         role="dialog" aria-modal="true" aria-labelledby="loadProjectDialogTitle"
+         aria-hidden="true" tabindex="-1">
       <div class="dialog">
         <div class="dialog-header">
           <h3 id="loadProjectDialogTitle">选择要加载的项目</h3>
@@ -350,8 +373,59 @@
       </div>
     </div>
 
+    <!-- 保存数据曲线对话框 -->
+    <div id="curveSaveDialog" class="dialog-overlay" style="display: none;"
+         role="dialog" aria-modal="true" aria-labelledby="curveSaveDialogTitle"
+         aria-hidden="true" tabindex="-1">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3 id="curveSaveDialogTitle">保存数据曲线</h3>
+          <button type="button" class="btn-close" onclick="closeCurveSaveDialog()" aria-label="关闭">&times;</button>
+        </div>
+        <div class="dialog-body">
+          <div class="input-group">
+            <label for="curveNameInput">曲线名称 <span class="required">*</span></label>
+            <input type="text" id="curveNameInput" placeholder="请输入曲线名称"
+                   maxlength="50" autocomplete="off" aria-required="true" />
+            <p id="curveNameError" class="error-message" style="display: none;"></p>
+            <p class="hint-message">名称将用于后续快速检索和加载该数据曲线</p>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeCurveSaveDialog()">取消</button>
+          <button type="button" class="btn btn-primary" onclick="confirmCurveSave()"><span class="icon">✓</span> 确认保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 加载数据曲线对话框 -->
+    <div id="curveLoadDialog" class="dialog-overlay" style="display: none;"
+         role="dialog" aria-modal="true" aria-labelledby="curveLoadDialogTitle"
+         aria-hidden="true" tabindex="-1">
+      <div class="dialog curve-load-dialog">
+        <div class="dialog-header">
+          <h3 id="curveLoadDialogTitle">加载数据曲线</h3>
+          <button type="button" class="btn-close" onclick="closeCurveLoadDialog()" aria-label="关闭">&times;</button>
+        </div>
+        <div class="dialog-body">
+          <div class="curve-search-bar">
+            <input type="text" id="curveSearchInput" placeholder="搜索曲线名称..."
+                   autocomplete="off" oninput="filterCurveList()" aria-label="搜索曲线" />
+          </div>
+          <ul id="curveList" class="project-list curve-list" aria-label="数据曲线列表">
+            <!-- 由 JS 动态填充 -->
+          </ul>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeCurveLoadDialog()">取消</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 新建项目对话框 -->
-    <div id="newProjectDialog" class="dialog-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="newProjectDialogTitle" aria-hidden="true" tabindex="-1">
+    <div id="newProjectDialog" class="dialog-overlay" style="display: none;"
+         role="dialog" aria-modal="true" aria-labelledby="newProjectDialogTitle"
+         aria-hidden="true" tabindex="-1">
       <div class="dialog">
         <div class="dialog-header">
           <h3 id="newProjectDialogTitle">新建项目</h3>
@@ -360,7 +434,9 @@
         <div class="dialog-body">
           <div class="input-group">
             <label for="newProjectName">项目名称 <span class="required">*</span></label>
-            <input type="text" id="newProjectName" placeholder="请输入项目名称" maxlength="100" aria-required="true" aria-label="新建项目 名称" />
+            <input type="text" id="newProjectName" placeholder="请输入项目名称"
+                   maxlength="100" autocomplete="off"
+                   aria-required="true" aria-label="新建项目 名称" />
             <p id="newProjectNameError" class="error-message" style="display: none;"></p>
             <p id="newProjectNameHint" class="hint-message">项目名称将用于保存和识别您的测算项目</p>
           </div>
