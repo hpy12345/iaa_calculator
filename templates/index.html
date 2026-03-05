@@ -81,7 +81,7 @@
         <!-- ROI数据 - 支持手动输入和Excel导入两种模式 -->
         <div class="subsection">
           <div class="subsection-header">
-            <h3>ROI数据</h3>
+            <h3>ROI数据 <span class="section-tip">💡 手动输入或 Excel 导入的数据，需点击右上角「保存曲线」后方可生效</span></h3>
             <div class="curve-actions">
               <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('roi')" aria-label="管理ROI数据曲线">📂 管理曲线</button>
               <button type="button" class="btn btn-curve-save" onclick="showCurveSaveDialog('roi')" aria-label="保存ROI数据曲线">💾 保存曲线</button>
@@ -143,7 +143,7 @@
         <!-- 留存率数据 - 与 ROI 数据同样支持两种输入模式 -->
         <div class="subsection">
           <div class="subsection-header">
-            <h3>留存率数据</h3>
+            <h3>留存率数据 <span class="section-tip">💡 手动输入或 Excel 导入的数据，需点击右上角「保存曲线」后方可生效</span></h3>
             <div class="curve-actions">
               <button type="button" class="btn btn-curve-load" onclick="showCurveLoadDialog('retention')" aria-label="管理留存率数据曲线">📂 管理曲线</button>
               <button type="button" class="btn btn-curve-save" onclick="showCurveSaveDialog('retention')" aria-label="保存留存率数据曲线">💾 保存曲线</button>
@@ -376,10 +376,17 @@
           <h3 id="loadProjectDialogTitle">选择要加载的项目</h3>
           <button type="button" class="btn-close" onclick="closeLoadDialog()" aria-label="关闭 加载项目 对话框">&times;</button>
         </div>
-        <div class="dialog-body">
+        <div class="dialog-body" style="position: relative;">
           <ul id="projectList" class="project-list" aria-label="项目列表">
             <!-- 由 JS 动态填充 -->
           </ul>
+          <!-- 加载项目时的 loading 遮罩 -->
+          <div id="loadProjectLoading" class="dialog-loading-overlay" style="display: none;" aria-hidden="true">
+            <div class="dialog-loading-spinner">
+              <div class="spinner"></div>
+              <p>正在加载项目...</p>
+            </div>
+          </div>
         </div>
         <div class="dialog-footer">
           <button type="button" class="btn btn-secondary" onclick="closeLoadDialog()" aria-label="取消 加载项目">取消</button>
@@ -463,6 +470,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast 提示容器 -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <!-- 页脚 -->
     <footer class="footer">

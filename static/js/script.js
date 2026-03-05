@@ -365,6 +365,8 @@ function closeLoadDialog() {
 }
 
 async function loadProject(projectName) {
+  const loadingEl = $id('loadProjectLoading');
+  if (loadingEl) { loadingEl.style.display = 'flex'; loadingEl.removeAttribute('aria-hidden'); }
   try {
     const response = await fetch('/load_project', {
       method: 'POST',
@@ -374,6 +376,7 @@ async function loadProject(projectName) {
 
     const result = await response.json();
     if (!result?.success) {
+      if (loadingEl) { loadingEl.style.display = 'none'; loadingEl.setAttribute('aria-hidden', 'true'); }
       alert(`加载失败：${result?.error || '未知错误'}`);
       return;
     }
@@ -537,10 +540,12 @@ async function loadProject(projectName) {
     const exportCsvBtn = $id('exportCsvBtn');
     if (exportCsvBtn) exportCsvBtn.disabled = true;
 
-    alert(`项目 "${projectName}" 已加载成功！`);
+    if (loadingEl) { loadingEl.style.display = 'none'; loadingEl.setAttribute('aria-hidden', 'true'); }
+    showToast(`项目 "${projectName}" 已加载成功！`, 'success');
     markSaved();
   } catch (error) {
-    alert(`加载失败：${getErrorMessage(error)}`);
+    if (loadingEl) { loadingEl.style.display = 'none'; loadingEl.setAttribute('aria-hidden', 'true'); }
+    showToast(`加载失败：${getErrorMessage(error)}`, 'error');
   }
 }
 
@@ -614,7 +619,7 @@ async function addInvestmentPeriod(data = null, insertBeforeElement = null, skip
   const selectedRetentionCurveId = (data && data.retention_curve_id) || '';
 
   function buildCurveOptions(curves, selectedId, defaultLabel) {
-    let opts = `<option value="">${defaultLabel}</option>`;
+    let opts = '';
     curves.forEach(c => {
       const sel = c.id === selectedId ? 'selected' : '';
       opts += `<option value="${c.id}" ${sel}>${c.name}</option>`;
@@ -2185,7 +2190,7 @@ async function updateAllPeriodCurveSelectors() {
 
     if (roiSelect) {
       const currentVal = roiSelect.value;
-      let opts = '<option value="">全局曲线</option>';
+      let opts = '';
       roiCurves.forEach(c => {
         const sel = c.id === currentVal ? 'selected' : '';
         opts += `<option value="${c.id}" ${sel}>${c.name}</option>`;
@@ -2195,7 +2200,7 @@ async function updateAllPeriodCurveSelectors() {
 
     if (retentionSelect) {
       const currentVal = retentionSelect.value;
-      let opts = '<option value="">全局曲线</option>';
+      let opts = '';
       retentionCurves.forEach(c => {
         const sel = c.id === currentVal ? 'selected' : '';
         opts += `<option value="${c.id}" ${sel}>${c.name}</option>`;
@@ -2222,6 +2227,26 @@ function showToast(message) {
 
 // ========================================
 // 将 HTML 行内事件处理器需要的函数挂载到全局
+// ========================================
+// Toast 提示
+// ========================================
+function showToast(message, type = '', duration = 2500) {
+  const container = $id('toastContainer');
+  if (!container) { alert(message); return; }
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ` toast-${type}` : '');
+  toast.textContent = message;
+  container.appendChild(toast);
+  // 触发动画
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => toast.classList.add('toast-show'));
+  });
+  setTimeout(() => {
+    toast.classList.remove('toast-show');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }, duration);
+}
+
 // ========================================
 Object.assign(window, {
   createNewProject,
